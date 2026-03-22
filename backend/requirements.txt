@@ -1,3 +1,9 @@
 fastapi
 uvicorn
 onnxruntime
+google-cloud-storage
+polars
+python-dotenv
+gcsfs
+numpy
+tzdata
