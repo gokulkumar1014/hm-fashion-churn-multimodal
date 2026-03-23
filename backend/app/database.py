@@ -44,6 +44,7 @@ class HMLakehouse:
         
         # Build fast translation dict for ID lookups (Int64 <-> Hex String)
         self.int_to_hex = dict(zip(self.customer_id_bridge["int_id"], self.customer_id_bridge["hex_id"]))
+        self.hex_to_int = dict(zip(self.customer_id_bridge["hex_id"], self.customer_id_bridge["int_id"]))
 
     @lru_cache(maxsize=1000)
     def get_customer_context(self, int_id: int) -> dict:
@@ -62,7 +63,7 @@ class HMLakehouse:
         dna_vector_df = (
             self.style_profiles_lf
             .filter(pl.col("customer_id") == int_id)
-            .select("customer_style_dna")
+            .select(["customer_style_dna", "style_persona"])
             .collect()
         )
         
