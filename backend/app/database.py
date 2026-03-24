@@ -34,13 +34,13 @@ class HMLakehouse:
         self.visionary_champion = ort.InferenceSession(str(onnx_model_path))
         
         style_uri = "gs://gokul-hm-vault/customer_style_profiles_final.parquet"
-        self.style_profiles_lf = pl.scan_parquet(style_uri)
+        self.style_profiles_df = pl.read_parquet(style_uri)
         
         encyclopedia_uri = "gs://gokul-hm-vault/hm_style_encyclopedia.parquet"
-        self.encyclopedia_lf = pl.scan_parquet(encyclopedia_uri)
+        self.encyclopedia_df = pl.read_parquet(encyclopedia_uri)
         
         behavioral_uri = "gs://gokul-hm-vault/behavioral_sequences.parquet"
-        self.behavioral_sequences_lf = pl.scan_parquet(behavioral_uri)
+        self.behavioral_sequences_df = pl.read_parquet(behavioral_uri)
         
         # Build fast translation dict for ID lookups (Int64 <-> Hex String)
         self.int_to_hex = dict(zip(self.customer_id_bridge["int_id"], self.customer_id_bridge["hex_id"]))
@@ -61,10 +61,9 @@ class HMLakehouse:
         local_context = bio_df.join(stats_df, on="customer_id", how="left")
         
         dna_vector_df = (
-            self.style_profiles_lf
+            self.style_profiles_df
             .filter(pl.col("customer_id") == int_id)
             .select(["customer_style_dna", "style_persona"])
-            .collect()
         )
         
         return {
@@ -82,10 +81,9 @@ class HMLakehouse:
             
         # 1. Pull customer DNA from 8.5GB GCS file using Int64
         cust_dna_df = (
-            self.style_profiles_lf
+            self.style_profiles_df
             .filter(pl.col("customer_id") == int_id)
             .select("customer_style_dna")
-            .collect()
         )
         
         if cust_dna_df.is_empty():
@@ -110,10 +108,9 @@ class HMLakehouse:
             
         # 3. Pull DNA vectors for the last 3 articles from hm_style_encyclopedia in GCS
         article_dna_df = (
-            self.encyclopedia_lf
+            self.encyclopedia_df
             .filter(pl.col("article_id").is_in(last_3_articles))
             .select("style_embeddings")
-            .collect()
         )
         
         if article_dna_df.is_empty():

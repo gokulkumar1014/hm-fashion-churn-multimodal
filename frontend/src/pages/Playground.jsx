@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, User, Bot, AlertTriangle, ArrowRight, ShieldCheck, Tag } from 'lucide-react';
 import { useChat } from '../hooks/useChat';
+import AnalystResponse from '../components/AnalystResponse';
+import ReactMarkdown from 'react-markdown';
 
 // -------------------------------------------------------------
 // INJECTABLE SUB-COMPONENTS
@@ -50,6 +52,10 @@ const StrategyCard = ({ strategy }) => (
   </motion.div>
 );
 
+const getImageUrl = (article_id) => {
+  return `http://localhost:8000/api/v1/image/${article_id}`;
+};
+
 const ActivityFeed = ({ items, title }) => (
   <motion.div 
     initial={{ x: -20, opacity: 0 }} 
@@ -60,10 +66,21 @@ const ActivityFeed = ({ items, title }) => (
     <h4 className="font-sans text-xs uppercase tracking-widest text-hm-gray mb-4">{title}</h4>
     <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
       {items.slice(0, 5).map((item, idx) => (
-        <div key={idx} className="flex flex-col gap-2">
-          <div className="aspect-[3/4] bg-hm-light w-full border border-gray-50 flex items-center justify-center overflow-hidden">
-             {/* Mocking images dynamically using article ID */}
-             <div className="font-sans text-[10px] text-hm-gray">IMG_{item.article_id}</div>
+        <div key={idx} className="flex flex-col gap-2 group">
+          <div className="aspect-[3/4] bg-hm-light w-full border border-gray-50 flex items-center justify-center overflow-hidden relative">
+             <img 
+               src={getImageUrl(item.article_id)} 
+               alt={item.prod_name}
+               className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
+               onError={(e) => {
+                 e.target.style.display = 'none';
+                 e.target.nextSibling.style.display = 'flex';
+               }}
+             />
+             <div className="absolute inset-0 flex-col items-center justify-center text-center p-2 bg-hm-light font-sans text-[10px] text-hm-gray" style={{ display: 'none' }}>
+               <span>Image Unavailable</span>
+               <span className="mt-1">{item.article_id}</span>
+             </div>
           </div>
           <p className="font-sans text-xs font-medium line-clamp-1" title={item.prod_name}>{item.prod_name}</p>
           <p className="font-sans text-[10px] text-hm-gray">{item.product_type_name}</p>
@@ -130,27 +147,48 @@ export default function Playground() {
                 </div>
 
                 {/* Content Box */}
-                <div className={`flex flex-col gap-4 max-w-[85%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                <div className={`flex flex-col gap-4 max-w-[85%] w-full ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                   {/* Text Bubble */}
-                  <div className={`px-6 py-4 font-sans text-sm leading-relaxed ${msg.role === 'user' ? 'bg-hm-black text-white border border-hm-black' : 'bg-white border border-gray-100 shadow-sm text-hm-black'}`}>
-                    {msg.text}
-                    {msg.isThinking && (
-                      <span className="ml-2 inline-flex gap-1">
-                        <span className="animate-bounce delay-100">.</span>
-                        <span className="animate-bounce delay-200">.</span>
-                        <span className="animate-bounce delay-300">.</span>
-                      </span>
-                    )}
-                  </div>
+                  {msg.type !== 'data' && (
+                    <div className={`px-6 py-4 font-sans text-sm leading-relaxed ${msg.role === 'user' ? 'bg-hm-black text-white border border-hm-black' : 'bg-white/70 backdrop-blur-md border border-gray-100 shadow-sm text-hm-black'} rounded-sm`}>
+                      {msg.role === 'user' ? (
+                        msg.text
+                      ) : (
+                        <div className="markdown-content">
+                          <ReactMarkdown
+                            components={{
+                              p: ({node, ...props}) => <p className="mb-3 last:mb-0" {...props} />,
+                              strong: ({node, ...props}) => <strong className="font-semibold text-hm-black" {...props} />,
+                              ul: ({node, ...props}) => <ul className="list-disc pl-5 mb-3" {...props} />,
+                              ol: ({node, ...props}) => <ol className="list-decimal pl-5 mb-3" {...props} />,
+                              li: ({node, ...props}) => <li className="mb-1" {...props} />
+                            }}
+                          >
+                            {msg.text}
+                          </ReactMarkdown>
+                        </div>
+                      )}
+                      
+                      {msg.isThinking && (
+                        <span className="ml-2 inline-flex gap-1">
+                          <span className="animate-bounce delay-100">.</span>
+                          <span className="animate-bounce delay-200">.</span>
+                          <span className="animate-bounce delay-300">.</span>
+                        </span>
+                      )}
+                    </div>
+                  )}
 
                   {/* Rich Component Injection (Only for AI Data messages) */}
                   {msg.type === 'data' && msg.data && (
-                    <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-                      <RiskMeter assessment={msg.data.risk_assessment} />
-                      <StrategyCard strategy={msg.data.strategy} />
-                      <ActivityFeed title="Visual Recommendations" items={msg.data.orchestrated_recommendations} />
-                      <ActivityFeed title="Recent Activity" items={msg.data.recent_activity_feed} />
-                    </div>
+                    <AnalystResponse
+                      narrative={msg.text}
+                      data={msg.data}
+                      RiskCard={RiskMeter}
+                      StrategyCard={StrategyCard}
+                      VisualTwinsFeed={ActivityFeed}
+                      RecentHistoryFeed={ActivityFeed}
+                    />
                   )}
                 </div>
               </motion.div>

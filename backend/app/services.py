@@ -35,9 +35,8 @@ class StrategyEngine:
         # 4. Fetch the ONNX features
         # Sequence input: behavioral_sequences (Requires integer ID)
         seq_df = (
-            self.db.behavioral_sequences_lf
+            self.db.behavioral_sequences_df
             .filter(pl.col("customer_id") == int_id)
-            .collect()
         )
         
         churn_prob = 0.5  # Neutral default baseline
@@ -202,7 +201,7 @@ class StrategyEngine:
         return twins
 
     def _get_persona_best_sellers(self, int_id: int) -> list:
-        dna_df = self.db.style_profiles_lf.filter(pl.col("customer_id") == int_id).select("style_persona").collect()
+        dna_df = self.db.style_profiles_df.filter(pl.col("customer_id") == int_id).select("style_persona")
         if dna_df.is_empty():
             return []
         persona = dna_df["style_persona"][0]

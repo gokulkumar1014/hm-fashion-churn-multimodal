@@ -1,9 +1,18 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
+from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from typing import List, Optional, Any
 import asyncio
+import os
+import io
+import json
+import traceback
+import re
+from google import genai
+from google.cloud import storage
 
 from app.services import conductor
 from app.database import lakehouse
@@ -47,6 +56,13 @@ class FinalResponse(BaseModel):
     strategy: Strategy
     recent_activity_feed: List[RecommendationItem]
     orchestrated_recommendations: List[RecommendationItem]
+
+class ChatRequest(BaseModel):
+    message: str
+
+class ChatResponse(BaseModel):
+    narrative: str
+    data: Optional[FinalResponse] = None
 
 
 # ==============================================================================
@@ -121,3 +137,108 @@ async def get_customer(customer_id: str):
         raise HTTPException(status_code=404, detail=result["error"])
         
     return result
+
+# ==============================================================================
+# 5. Agentic Chat Endpoint (Gemini Consultant)
+# ==============================================================================
+@app.post("/api/v1/chat", tags=["Agentic Chat"])
+async def get_chat_response(request: ChatRequest):
+    client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+    
+    # 1. Ultra-Fast Regex Extraction (Bypasses Gemini 429 Quota Limits)
+    hex_match = re.search(r'\b[a-fA-F0-9]{64}\b', request.message)
+    int_match = re.search(r'\b\d{5,15}\b', request.message)
+    
+    if hex_match:
+        extracted_id = hex_match.group(0)
+    elif int_match:
+        extracted_id = int_match.group(0)
+    else:
+        extracted_id = "NONE"
+
+    async def event_generator():
+        try:
+            if extracted_id and extracted_id.upper() != "NONE":
+                clean_id = ''.join(e for e in extracted_id if e.isalnum())
+                try:
+                    if clean_id.isdigit():
+                        int_id_val = int(clean_id)
+                        hex_target = lakehouse.int_to_hex.get(int_id_val)
+                    else:
+                        hex_target = clean_id
+                        
+                    if hex_target:
+                        crm_data = await asyncio.to_thread(conductor.get_customer_360, hex_target)
+                        if "error" not in crm_data:
+                            # Yield the data chunk first so UI can animate cards immediately
+                            clean_data = jsonable_encoder(crm_data)
+                            yield f"data: {json.dumps({'type': 'data', 'payload': clean_data})}\n\n"
+                            
+                            # 2. Stream the LLM narrative live
+                            narrative_prompt = f"You are the H&M AI Consultant. The user asked: '{request.message}'. Based on this CRM data: {json.dumps(clean_data)}, write a brief, insightful, and strategic narrative (2 sentences max) summarizing their risk, style drift, and the recommended strategy. Speak in a confident, professional tone."
+                            response_stream = await client.aio.models.generate_content_stream(
+                                model='gemini-2.5-flash',
+                                contents=narrative_prompt
+                            )
+                            async for chunk in response_stream:
+                                if chunk.text:
+                                    yield f"data: {json.dumps({'type': 'text', 'payload': chunk.text})}\n\n"
+                                    await asyncio.sleep(0.01)
+                            return
+                except Exception as e:
+                    print(f"Error processing CRM data: {e}")
+                    pass
+                    
+            # Default Fallback if no ID or error
+            yield f"data: {json.dumps({'type': 'data', 'payload': None})}\n\n"
+            try:
+                narrative_prompt = f"You are the H&M AI Consultant. User message: '{request.message}'. Respond conversationally. If they didn't provide a customer ID, politely ask for one to run the Churn Inference."
+                response_stream = await client.aio.models.generate_content_stream(
+                    model='gemini-2.5-flash',
+                    contents=narrative_prompt
+                )
+                async for chunk in response_stream:
+                    if chunk.text:
+                        yield f"data: {json.dumps({'type': 'text', 'payload': chunk.text})}\n\n"
+                        await asyncio.sleep(0.01)
+            except Exception as e:
+                err_payload = "I am experiencing technical difficulties accessing my neural network. Please check your Gemini API key."
+                yield f"data: {json.dumps({'type': 'text', 'payload': err_payload})}\n\n"
+        except Exception as global_e:
+            err_msg = f"Backend Stream Error: {str(global_e)} | Trace: {traceback.format_exc()}"
+            yield f"data: {json.dumps({'type': 'text', 'payload': err_msg})}\n\n"
+            
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+
+# ==============================================================================
+# 6. Secure Image Proxy (Bypasses Non-Public GCS restrictions)
+# ==============================================================================
+try:
+    gcs_client = storage.Client()
+    image_bucket = gcs_client.bucket("gokul-hm-vault")
+except Exception as e:
+    print(f"Warning: Could not initialize Google Cloud Storage client: {e}")
+    image_bucket = None
+
+@app.get("/api/v1/image/{article_id}", tags=["Static Assets"])
+async def get_product_image(article_id: str):
+    """Securely fetches images from the private GCS bucket and streams them to the UI."""
+    if not image_bucket:
+        raise HTTPException(status_code=500, detail="GCS Client not initialized. Check local credentials.")
+        
+    padded_id = article_id.zfill(10)
+    folder = padded_id[:3]
+    blob_path = f"images/{folder}/{padded_id}.jpg"
+    
+    def fetch_image():
+        blob = image_bucket.blob(blob_path)
+        if not blob.exists():
+            return None
+        return blob.download_as_bytes()
+        
+    image_bytes = await asyncio.to_thread(fetch_image)
+    if not image_bytes:
+        raise HTTPException(status_code=404, detail=f"Image {blob_path} not found in GCS.")
+        
+    return StreamingResponse(io.BytesIO(image_bytes), media_type="image/jpeg")

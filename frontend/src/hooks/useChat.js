@@ -24,34 +24,71 @@ export function useChat() {
     setMessages(prev => [...prev, { 
       id: thinkingId, 
       role: 'ai', 
-      text: 'Analyzing GCS feature tensors and computing Style Drift distance...', 
+      text: 'Accessing GCS Vault... Running ONNX Churn Inference...', 
       type: 'text', 
       isThinking: true 
     }]);
 
     try {
       // 3. Request FastAPI Dream View pipeline
-      const response = await fetch(`http://localhost:8000/api/v1/customer/${input.trim()}`);
+      const response = await fetch(`http://localhost:8000/api/v1/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message: input })
+      });
       
       if (!response.ok) {
         throw new Error('Customer ID not found or server error');
       }
 
-      const data = await response.json();
+      // 4. Stream consumption
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      
+      let accumulatedText = "";
+      let buffer = "";
+      let crmData = null;
 
-      // 4. Transform Thinking Node into Rich Data Node
-      setMessages(prev => prev.map(msg => {
-        if (msg.id === thinkingId) {
-          return {
-            id: thinkingId,
-            role: 'ai',
-            text: `Analysis finalized. Customer ${data.dossier.customer_id.substring(0,8)}... has a ${data.risk_assessment.churn_probability}% risk of churning. They are exhibiting ${data.style_analysis.trend_summary} style behavior. I am triggering the ${data.strategy.name} logic.`,
-            type: 'data',
-            data: data
-          };
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        buffer += decoder.decode(value, { stream: true });
+        
+        let boundary = buffer.indexOf('\n\n');
+        while (boundary !== -1) {
+          const eventStr = buffer.slice(0, boundary);
+          buffer = buffer.slice(boundary + 2);
+          
+          if (eventStr.startsWith('data: ')) {
+            try {
+              const parsed = JSON.parse(eventStr.slice(6));
+              
+              if (parsed.type === 'data') {
+                crmData = parsed.payload;
+                setMessages(prev => prev.map(msg => msg.id === thinkingId ? {
+                  ...msg,
+                  type: crmData ? 'data' : 'text',
+                  data: crmData,
+                  isThinking: false
+                } : msg));
+              } else if (parsed.type === 'text') {
+                accumulatedText += parsed.payload;
+                setMessages(prev => prev.map(msg => msg.id === thinkingId ? {
+                  ...msg,
+                  text: accumulatedText,
+                  isThinking: false
+                } : msg));
+              }
+            } catch (e) {
+              console.error("Stream parse error", e);
+            }
+          }
+          boundary = buffer.indexOf('\n\n');
         }
-        return msg;
-      }));
+      }
 
     } catch (error) {
       setMessages(prev => prev.map(msg => {
