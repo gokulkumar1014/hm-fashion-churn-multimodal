@@ -1,7 +1,7 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Database, Code2, Cloud, ArrowRight, XCircle, CheckCircle2, ShieldAlert, Cpu } from 'lucide-react';
+import { ArrowRight, Database, Cloud, Activity } from 'lucide-react';
 
 const IMAGES = [
   'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
@@ -11,10 +11,7 @@ const IMAGES = [
 
 const containerVariants = {
   hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.15 }
-  }
+  show: { opacity: 1, transition: { staggerChildren: 0.15 } }
 };
 
 const itemVariants = {
@@ -22,17 +19,22 @@ const itemVariants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
 };
 
+const scrollVariant = {
+  hidden: { opacity: 0, y: 40 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
+};
+
 export default function Hero() {
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
-      {/* 1. The Above-the-Fold (The Hook) */}
+      
+      {/* 1. THE HERO (The Strategic Hook) */}
       <section className="pt-12 pb-0 px-6 max-w-7xl mx-auto flex flex-col items-center justify-center text-center relative border-b border-gray-100">
-        {/* Subtle background glow from Image 3 */}
         <div className="absolute top-0 left-1/2 w-[500px] h-[500px] bg-red-50/50 rounded-full blur-[100px] z-0 pointer-events-none -translate-x-1/2 -translate-y-1/2"></div>
 
         <motion.div variants={containerVariants} initial="hidden" animate="show" className="relative z-10 w-full max-w-4xl">
           <motion.h4 variants={itemVariants} className="font-sans text-xs md:text-sm uppercase tracking-[0.2em] text-hm-red mb-6 font-extrabold">
-            The Next Generation CRM
+            PRECISION RETENTION FOR THE RETAIL ECONOMY
           </motion.h4>
 
           <motion.h1
@@ -45,167 +47,238 @@ export default function Hero() {
           </motion.h1>
 
           <motion.p variants={itemVariants} className="font-sans text-gray-500 text-lg md:text-xl max-w-3xl mx-auto mb-8 leading-relaxed font-light">
-            A centralized Strategy Engine that moves beyond standard recommendation algorithms. Diagnose churn probability, analyze style drift, and orchestrate retention at scale.
+            A strategic intelligence layer that bridges the gap between deep learning research and real-world business profitability.
           </motion.p>
 
           <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 items-center justify-center mb-8">
-            <Link to="/playground" className="group px-8 py-3.5 bg-hm-black text-white rounded-full font-sans text-xs tracking-[0.15em] uppercase font-semibold hover:bg-hm-red transition-all duration-500 flex items-center justify-center gap-2 shadow-xl hover:shadow-[0_10px_20px_rgba(255,0,0,0.2)] hover:-translate-y-1.5 hover:scale-[1.02]">
+            <Link to="/playground" className="group px-8 py-3.5 border border-hm-black text-white bg-hm-black rounded-full font-sans text-xs tracking-[0.15em] uppercase font-semibold hover:bg-transparent hover:text-hm-black transition-all duration-500 flex items-center justify-center gap-2 hover:-translate-y-1 hover:shadow-xl">
               Launch Engine
               <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
             </Link>
-            <Link to="/blueprint" className="px-8 py-3.5 border border-gray-200 text-gray-600 rounded-full font-sans text-xs tracking-[0.15em] uppercase font-semibold hover:border-hm-black hover:text-hm-black transition-all duration-500 flex items-center justify-center bg-white/50 backdrop-blur hover:-translate-y-1.5 hover:scale-[1.02] hover:shadow-[0_10px_20px_rgba(0,0,0,0.05)]">
+            <Link to="/blueprint" className="px-8 py-3.5 border border-gray-300 text-gray-500 bg-transparent rounded-full font-sans text-xs tracking-[0.15em] uppercase font-semibold hover:border-hm-black hover:text-hm-black transition-all duration-500 flex items-center justify-center hover:-translate-y-1 hover:shadow-xl bg-white/50 backdrop-blur">
               View Blueprint
             </Link>
           </motion.div>
         </motion.div>
 
-        {/* Fashion Editorial Image Grid (Replaces old Corner Floats) */}
+        {/* Fashion Editorial Image Grid */}
         <motion.div
           initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.6 }}
           className="w-full max-w-6xl mx-auto grid grid-cols-3 gap-4 md:gap-8 relative z-20 pb-20 pt-16"
         >
           <motion.div animate={{ y: [0, -12, 0] }} transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}>
-            <img
-              src={IMAGES[0]} alt="High Fashion"
-              className="w-full h-48 md:h-[400px] object-cover rounded-sm shadow-xl transition-all duration-500 hover:grayscale hover:opacity-80 cursor-pointer hover:shadow-2xl"
-            />
+            <img src={IMAGES[0]} alt="High Fashion Sequential" className="w-full h-48 md:h-[400px] object-cover rounded-sm shadow-xl transition-all duration-500 hover:grayscale hover:shadow-2xl cursor-pointer" />
           </motion.div>
 
           <motion.div animate={{ y: [0, -18, 0] }} transition={{ repeat: Infinity, duration: 8, ease: "easeInOut", delay: 1 }}>
-            <img
-              src={IMAGES[1]} alt="High Fashion"
-              className="w-full h-64 md:h-[500px] object-cover rounded-sm shadow-2xl -mt-8 md:-mt-16 border border-gray-100 transition-all duration-500 cursor-pointer hover:shadow-[0_20px_40px_rgba(0,0,0,0.2)]"
-            />
+            <img src={IMAGES[1]} alt="High Fashion Multimodal" className="w-full h-64 md:h-[500px] object-cover rounded-sm shadow-2xl -mt-8 md:-mt-16 border border-gray-100 transition-all duration-500 hover:shadow-3xl cursor-pointer" />
           </motion.div>
 
           <motion.div animate={{ y: [0, -15, 0] }} transition={{ repeat: Infinity, duration: 7, ease: "easeInOut", delay: 2 }}>
-            <img
-              src={IMAGES[2]} alt="High Fashion"
-              className="w-full h-48 md:h-[400px] object-cover rounded-sm shadow-xl transition-all duration-500 hover:grayscale hover:opacity-80 cursor-pointer hover:shadow-2xl"
-            />
+            <img src={IMAGES[2]} alt="High Fashion Intelligence" className="w-full h-48 md:h-[400px] object-cover rounded-sm shadow-xl transition-all duration-500 hover:grayscale hover:shadow-2xl cursor-pointer" />
           </motion.div>
         </motion.div>
       </section>
 
-      {/* 2. The "Problem/Solution" Section: Why this exists? */}
-      <section className="py-24 px-6 max-w-6xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="font-serif text-4xl font-bold text-hm-black mb-4">Why This Exists</h2>
-          <p className="font-sans text-sm uppercase tracking-widest text-hm-gray">Escaping Simplistic Analytics</p>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-8">
-          {/* Old Way */}
-          <div className="bg-gray-100 p-10 border border-gray-200 rounded-sm shadow-inner flex flex-col h-full transition-colors hover:bg-gray-200">
-            <div className="flex items-center gap-3 mb-10 text-gray-500 border-b border-gray-200 pb-6 shrink-0">
-              <XCircle size={28} />
-              <h3 className="font-serif text-2xl font-bold text-hm-black flex items-end gap-2">
-                The Old Way <span className="text-[11px] font-sans font-semibold text-gray-500 uppercase tracking-widest leading-loose">(Simplistic)</span>
-              </h3>
-            </div>
-            <div className="space-y-10 flex-1">
-              <div>
-                <h4 className="font-bold text-sm uppercase tracking-wider text-hm-black mb-2 flex items-center gap-2"><ShieldAlert size={16} className="text-hm-gray" /> Rule-based</h4>
-                <p className="text-gray-600 font-sans leading-relaxed">"You bought a blue shirt, here are blue pants."</p>
-              </div>
-              <div>
-                <h4 className="font-bold text-sm uppercase tracking-wider text-hm-black mb-2 flex items-center gap-2"><ShieldAlert size={16} className="text-hm-gray" /> Static</h4>
-                <p className="text-gray-600 font-sans leading-relaxed">Ignores that a user's style evolves over time.</p>
-              </div>
-              <div>
-                <h4 className="font-bold text-sm uppercase tracking-wider text-hm-black mb-2 flex items-center gap-2"><ShieldAlert size={16} className="text-hm-gray" /> Reactive</h4>
-                <p className="text-gray-600 font-sans leading-relaxed">Waits for a customer to leave (Churn) before taking action.</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Engine Way */}
-          <div className="bg-white p-10 border-2 border-red-100 rounded-sm shadow-xl relative overflow-hidden flex flex-col h-full hover:-translate-y-1 transition-all duration-500 hover:shadow-2xl hover:border-red-200">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-red-100 opacity-30 blur-3xl rounded-full translate-x-1/3 -translate-y-1/4"></div>
-            <div className="flex items-center gap-3 mb-10 text-hm-red border-b border-red-100 pb-6 relative z-10 shrink-0">
-              <CheckCircle2 size={28} />
-              <h3 className="font-serif text-2xl font-bold text-hm-black flex items-end gap-2">
-                The Engine Way <span className="text-[11px] font-sans font-bold text-hm-red uppercase tracking-widest leading-loose">(Advanced)</span>
-              </h3>
-            </div>
-            <div className="space-y-10 relative z-10 flex-1">
-              <div>
-                <h4 className="font-bold text-sm uppercase tracking-wider text-hm-black mb-2 flex items-center gap-2"><Cpu size={16} className="text-hm-red" /> Multimodal</h4>
-                <p className="text-gray-700 font-sans leading-relaxed font-normal">Analyzes the visual aesthetic of the shirt and the sequential intent of the user.</p>
-              </div>
-              <div>
-                <h4 className="font-bold text-sm uppercase tracking-wider text-hm-black mb-2 flex items-center gap-2"><Cpu size={16} className="text-hm-red" /> Dynamic</h4>
-                <p className="text-gray-700 font-sans leading-relaxed font-normal">Detects Customer Style Drift to pivot retention strategies in real-time.</p>
-              </div>
-              <div>
-                <h4 className="font-bold text-sm uppercase tracking-wider text-hm-black mb-2 flex items-center gap-2"><Cpu size={16} className="text-hm-red" /> Proactive</h4>
-                <p className="text-gray-700 font-sans leading-relaxed font-normal">Predicts churn probability with an incredible <strong className="text-hm-red font-bold">0.88 Recall</strong> strictly before the next cycle.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. The "Engine Specs" (The Technical Flex) */}
-      <section className="py-24 bg-zinc-50 border-t border-gray-100 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-20">
-            <h2 className="font-serif text-4xl font-bold text-hm-black mb-4">The Spec Sheet</h2>
-            <p className="font-sans text-sm uppercase tracking-widest text-hm-gray">Production-Ready Heavy Lifting</p>
+      {/* 2. THE ENGINEERING MOAT */}
+      <section className="py-24 bg-white border-t border-gray-100 px-6">
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={scrollVariant} className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="font-serif text-3xl md:text-5xl font-bold text-hm-black mb-4">The Engineering Moat</h2>
+            <p className="font-sans text-xs uppercase tracking-[0.2em] text-hm-gray">Bridging Big Data & Real-Time Inference</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-x-12 gap-y-16">
-
-            {/* Spec 1 */}
-            <div className="flex flex-col gap-5 border-t-2 border-hm-black pt-6 hover:bg-white hover:shadow-xl transition-all p-6 -m-6 rounded-sm">
-              <div className="text-hm-red mb-2">
-                <Database size={32} strokeWidth={1.5} />
-              </div>
-              <h3 className="font-serif text-2xl font-bold text-hm-black">Big Data Backbone</h3>
-              <ul className="space-y-4 font-sans text-sm text-gray-600 leading-relaxed list-none">
-                <li className="flex items-start gap-3"><span className="text-hm-red mt-0.5 font-bold">•</span> Processed 31 Million transactions and 1.3 Million customers.</li>
-                <li className="flex items-start gap-3"><span className="text-hm-red mt-0.5 font-bold">•</span> Engineered with Polars on high-memory GCP instances for 10x faster joins than Pandas.</li>
-              </ul>
+            <div className="flex flex-col gap-4 border-t border-gray-200 pt-6 group">
+              <h3 className="font-sans text-sm tracking-[0.15em] uppercase font-bold text-hm-black flex items-center gap-3">
+                <Activity size={18} className="text-hm-red" /> Sequential Depth
+              </h3>
+              <p className="font-sans text-sm text-gray-500 leading-[1.8] font-light">
+                Modeled 31 Million transaction sequences for 1.3 Million customers and 105k products to capture the subtle 'slow down' phase in engagement before churn occurs.
+              </p>
             </div>
-
-            {/* Spec 2 */}
-            <div className="flex flex-col gap-5 border-t-2 border-hm-black pt-6 hover:bg-white hover:shadow-xl transition-all p-6 -m-6 rounded-sm">
-              <div className="text-hm-red mb-2">
-                <Code2 size={32} strokeWidth={1.5} />
-              </div>
-              <h3 className="font-serif text-2xl font-bold text-hm-black">The Architecture</h3>
-              <ul className="space-y-4 font-sans text-sm text-gray-600 leading-relaxed list-none">
-                <li className="flex items-start gap-3"><span className="text-hm-red mt-0.5 font-bold">•</span> <span><strong>Multimodal Two-Tower Model:</strong> Merges visual CNN embeddings with sequential metadata.</span></li>
-              </ul>
+            
+            <div className="flex flex-col gap-4 border-t border-gray-200 pt-6 group">
+              <h3 className="font-sans text-sm tracking-[0.15em] uppercase font-bold text-hm-black flex items-center gap-3">
+                <Database size={18} className="text-hm-red" /> Multimodal Fusion
+              </h3>
+              <p className="font-sans text-sm text-gray-500 leading-[1.8] font-light">
+                Merged 30GB+ of visual article embeddings (CNN) with behavioral metadata to map unique Style DNA, validating real-time style drift and orchestrating LTV-based interventions.
+              </p>
             </div>
-
-            {/* Spec 3 */}
-            <div className="flex flex-col gap-5 border-t-2 border-hm-black pt-6 hover:bg-white hover:shadow-xl transition-all p-6 -m-6 rounded-sm">
-              <div className="text-hm-red mb-2">
-                <Cloud size={32} strokeWidth={1.5} />
-              </div>
-              <h3 className="font-serif text-2xl font-bold text-hm-black">Zero-Overload Cloud Design</h3>
-              <ul className="space-y-4 font-sans text-sm text-gray-600 leading-relaxed list-none">
-                <li className="flex items-start gap-3"><span className="text-hm-red mt-0.5 font-bold">•</span> Hosted on Google Cloud Run to ensure stability beyond local hardware limits.</li>
-                <li className="flex items-start gap-3"><span className="text-hm-red mt-0.5 font-bold">•</span> <span><strong>Production Monitoring:</strong> Full experiment tracking via MLflow. Model registry and versioning to ensure reproducible "Production-Ready" results.</span></li>
-              </ul>
+            
+            <div className="flex flex-col gap-4 border-t border-gray-200 pt-6 group">
+              <h3 className="font-sans text-sm tracking-[0.15em] uppercase font-bold text-hm-black flex items-center gap-3">
+                <Cloud size={18} className="text-hm-red" /> Cloud Orchestration
+              </h3>
+              <p className="font-sans text-sm text-gray-500 leading-[1.8] font-light">
+                Architected a zero-overload infrastructure on GCP using Polars for high-concurrency joins and GCS-native lazy loading to bypass hardware bottlenecks, ensuring sub-1.5s response times.
+              </p>
             </div>
-
           </div>
+        </motion.div>
+      </section>
+
+      {/* 3. THE STRATEGIC EVOLUTION */}
+      <section className="py-24 px-6 bg-white shrink-0 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[radial-gradient(circle_at_top_right,rgba(255,0,0,0.03),transparent_60%)] pointer-events-none"></div>
+        <div className="max-w-5xl mx-auto relative z-10">
+          
+          <div className="mb-14 flex flex-col md:flex-row md:items-end justify-between border-b pb-6 border-gray-100">
+            <div>
+              <h2 className="font-serif text-4xl md:text-5xl font-bold text-hm-black mb-2 tracking-tight">Strategic Intelligence.</h2>
+            </div>
+            <p className="font-sans text-[11px] uppercase tracking-[0.2em] text-gray-400 text-left md:text-right max-w-xs leading-relaxed font-bold mt-4 md:mt-0">Head-to-head architecture: Legacy Rules vs. Multimodal Inference.</p>
+          </div>
+
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.8 }} 
+            className="w-full shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] rounded-2xl overflow-hidden flex flex-col relative border border-gray-200 bg-white">
+            
+            {/* Table Header */}
+            <div className="grid grid-cols-1 md:grid-cols-12 bg-hm-black relative z-10 shadow-md">
+              <div className="md:col-span-3 p-5 md:p-6 border-b md:border-b-0 md:border-r border-zinc-800 font-sans text-[10px] uppercase tracking-[0.2em] font-bold text-gray-300">Feature Vector</div>
+              <div className="md:col-span-4 p-5 md:p-6 border-b md:border-b-0 md:border-r border-zinc-800 font-sans text-[10px] uppercase tracking-[0.2em] font-bold text-gray-300">Legacy Paradigm</div>
+              <div className="md:col-span-5 p-5 md:p-6 font-sans text-[10px] uppercase tracking-[0.2em] font-bold text-white flex items-center gap-2 relative overflow-hidden group/header cursor-default">
+                <div className="absolute inset-0 bg-hm-red/20 translate-y-full group-hover/header:translate-y-0 transition-transform duration-500 ease-out"></div>
+                <div className="w-1.5 h-1.5 rounded-full bg-hm-red animate-pulse relative z-10"></div> 
+                <span className="relative z-10">The Strategy Engine</span>
+              </div>
+            </div>
+
+            {/* Row 1 */}
+            <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ delay: 0.1, duration: 0.5 }} className="grid grid-cols-1 md:grid-cols-12 border-b border-red-100 hover:bg-white transition-all duration-500 group bg-red-50/40 relative overflow-hidden">
+              <div className="absolute inset-0 bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-hm-red transform scale-y-0 group-hover:scale-y-100 transition-transform duration-500 origin-center z-10"></div>
+              <div className="md:col-span-3 p-6 md:p-8 border-b md:border-b-0 md:border-r border-red-100 font-sans text-xs tracking-[0.1em] uppercase font-bold text-hm-black flex items-center group-hover:text-hm-red transition-colors relative z-10">
+                Data Input
+              </div>
+              <div className="md:col-span-4 p-6 md:p-8 border-b md:border-b-0 md:border-r border-red-100 flex items-center relative z-10 bg-white/50 group-hover:bg-transparent transition-colors duration-500">
+                <p className="font-serif text-[15px] text-gray-500 leading-relaxed line-through decoration-gray-300 group-hover:decoration-gray-400 transition-colors">
+                  Single-source (CSV/SQL) ignoring visual context.
+                </p>
+              </div>
+              <div className="md:col-span-5 p-6 md:p-8 transition-transform duration-500 flex items-center pl-6 md:pl-10 relative z-10 group-hover:translate-x-2">
+                <p className="font-sans text-[15px] text-gray-600 leading-relaxed font-light">
+                  <strong className="text-hm-red tracking-[0.02em] block mb-1">Multimodal Fusion</strong> Fuses pixel-level article DNA with sequential transaction intent.
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Row 2 */}
+            <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ delay: 0.2, duration: 0.5 }} className="grid grid-cols-1 md:grid-cols-12 border-b border-red-100 hover:bg-white transition-all duration-500 group bg-red-50/40 relative overflow-hidden">
+              <div className="absolute inset-0 bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-hm-red transform scale-y-0 group-hover:scale-y-100 transition-transform duration-500 origin-center z-10"></div>
+              <div className="md:col-span-3 p-6 md:p-8 border-b md:border-b-0 md:border-r border-red-100 font-sans text-xs tracking-[0.1em] uppercase font-bold text-hm-black flex items-center group-hover:text-hm-red transition-colors relative z-10">
+                Temporal Logic
+              </div>
+              <div className="md:col-span-4 p-6 md:p-8 border-b md:border-b-0 md:border-r border-red-100 flex items-center relative z-10 bg-white/50 group-hover:bg-transparent transition-colors duration-500">
+                <p className="font-serif text-[15px] text-gray-500 leading-relaxed line-through decoration-gray-300 group-hover:decoration-gray-400 transition-colors">
+                  Static snapshots; treats a user as a fixed profile.
+                </p>
+              </div>
+              <div className="md:col-span-5 p-6 md:p-8 transition-transform duration-500 flex items-center pl-6 md:pl-10 relative z-10 group-hover:translate-x-2">
+                <p className="font-sans text-[15px] text-gray-600 leading-relaxed font-light">
+                  <strong className="text-hm-red tracking-[0.02em] block mb-1">Sequential Intelligence</strong> Analyzes the "velocity" of engagement to catch churn before it happens.
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Row 3 */}
+            <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ delay: 0.3, duration: 0.5 }} className="grid grid-cols-1 md:grid-cols-12 border-b border-red-100 hover:bg-white transition-all duration-500 group bg-red-50/40 relative overflow-hidden">
+              <div className="absolute inset-0 bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-hm-red transform scale-y-0 group-hover:scale-y-100 transition-transform duration-500 origin-center z-10"></div>
+              <div className="md:col-span-3 p-6 md:p-8 border-b md:border-b-0 md:border-r border-red-100 font-sans text-xs tracking-[0.1em] uppercase font-bold text-hm-black flex items-center group-hover:text-hm-red transition-colors relative z-10">
+                Style Perception
+              </div>
+              <div className="md:col-span-4 p-6 md:p-8 border-b md:border-b-0 md:border-r border-red-100 flex items-center relative z-10 bg-white/50 group-hover:bg-transparent transition-colors duration-500">
+                <p className="font-serif text-[15px] text-gray-500 leading-relaxed line-through decoration-gray-300 group-hover:decoration-gray-400 transition-colors">
+                  Manual "Tags" (e.g., "Blue Shirt") that ignore aesthetic shifts.
+                </p>
+              </div>
+              <div className="md:col-span-5 p-6 md:p-8 transition-transform duration-500 flex items-center pl-6 md:pl-10 relative z-10 group-hover:translate-x-2">
+                <p className="font-sans text-[15px] text-gray-600 leading-relaxed font-light">
+                  <strong className="text-hm-red tracking-[0.02em] block mb-1">Style DNA & Drift</strong> Calculates the mathematical distance between historical tastes and recent evolution.
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Row 4 */}
+            <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ delay: 0.4, duration: 0.5 }} className="grid grid-cols-1 md:grid-cols-12 border-b border-red-100 hover:bg-white transition-all duration-500 group bg-red-50/40 relative overflow-hidden">
+              <div className="absolute inset-0 bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-hm-red transform scale-y-0 group-hover:scale-y-100 transition-transform duration-500 origin-center z-10"></div>
+              <div className="md:col-span-3 p-6 md:p-8 border-b md:border-b-0 md:border-r border-red-100 font-sans text-xs tracking-[0.1em] uppercase font-bold text-hm-black flex items-center group-hover:text-hm-red transition-colors relative z-10">
+                Business Action
+              </div>
+              <div className="md:col-span-4 p-6 md:p-8 border-b md:border-b-0 md:border-r border-red-100 flex items-center relative z-10 bg-white/50 group-hover:bg-transparent transition-colors duration-500">
+                <p className="font-serif text-[15px] text-gray-500 leading-relaxed line-through decoration-gray-300 group-hover:decoration-gray-400 transition-colors">
+                  "Spray and Pray" discounts that erode margins for all users.
+                </p>
+              </div>
+              <div className="md:col-span-5 p-6 md:p-8 transition-transform duration-500 flex items-center pl-6 md:pl-10 relative z-10 group-hover:translate-x-2">
+                <p className="font-sans text-[15px] text-gray-600 leading-relaxed font-light">
+                  <strong className="text-hm-red tracking-[0.02em] block mb-1">Unit Economics</strong> Surgical vouchers targeted only at "Persuadables" to maximize ROI and Uplift.
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Row 5 */}
+            <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ delay: 0.5, duration: 0.5 }} className="grid grid-cols-1 md:grid-cols-12 hover:bg-white transition-all duration-500 group bg-red-50/40 relative overflow-hidden">
+              <div className="absolute inset-0 bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-hm-red transform scale-y-0 group-hover:scale-y-100 transition-transform duration-500 origin-center z-10"></div>
+              <div className="md:col-span-3 p-6 md:p-8 border-b md:border-b-0 md:border-r border-red-100 font-sans text-xs tracking-[0.1em] uppercase font-bold text-hm-black flex items-center group-hover:text-hm-red transition-colors relative z-10">
+                Execution Hub
+              </div>
+              <div className="md:col-span-4 p-6 md:p-8 border-b md:border-b-0 md:border-r border-red-100 flex items-center relative z-10 bg-white/50 group-hover:bg-transparent transition-colors duration-500">
+                <p className="font-serif text-[15px] text-gray-500 leading-relaxed line-through decoration-gray-300 group-hover:decoration-gray-400 transition-colors">
+                  Local, batch-processed scripts with high latency.
+                </p>
+              </div>
+              <div className="md:col-span-5 p-6 md:p-8 transition-transform duration-500 flex items-center pl-6 md:pl-10 relative z-10 group-hover:translate-x-2">
+                <p className="font-sans text-[15px] text-gray-600 leading-relaxed font-light">
+                  <strong className="text-hm-red tracking-[0.02em] block mb-1">Cloud-Native Inference</strong> Asynchronous GCP architecture delivering 360 dossiers in milliseconds.
+                </p>
+              </div>
+            </motion.div>
+            
+          </motion.div>
         </div>
       </section>
 
-      {/* Founder's Note */}
-      <section className="pb-32 px-6 bg-zinc-50 pt-10">
-        <div className="max-w-4xl mx-auto bg-red-50/50 border border-red-100 p-8 md:p-12 text-center rounded-sm hover:shadow-lg transition-shadow">
-          <h4 className="font-sans text-xs uppercase tracking-widest text-hm-red mb-6 font-bold">Founder's Note</h4>
-          <p className="font-serif text-xl md:text-2xl text-hm-black italic leading-relaxed font-light">
-            "While standard academic projects rely on sampled data, this engine was architected to handle the raw reality of retail: 31 Million transactions. By offloading compute to Google Cloud's high-memory Vertex instances, I eliminated the 'Local Machine Bottleneck' to focus on high-fidelity, production-ready inference."
-          </p>
-        </div>
+      {/* 4. THE FOUNDER'S NOTE */}
+      <section className="py-32 px-6 bg-gray-50 border-t border-gray-200">
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={scrollVariant} className="max-w-3xl mx-auto">
+          <div className="mb-14 text-center">
+            <h4 className="font-sans text-xs uppercase tracking-[0.2em] text-hm-red font-bold mb-4">A Note from the Architect</h4>
+            <div className="w-12 h-0.5 bg-hm-black mx-auto"></div>
+          </div>
+          
+          <div className="font-serif text-xl md:text-2xl text-hm-black leading-[1.8] font-light space-y-8 relative px-4">
+            <span className="absolute -top-12 -left-6 md:-left-12 text-gray-200 text-8xl md:text-[140px] font-serif leading-none select-none opacity-50 block h-10">"</span>
+            
+            <p className="relative z-10">
+              This project was born from a pivotal realization during my Master's Capstone: <strong className="font-semibold text-hm-red italic">real-world AI shouldn't just live on a laptop and die! It belongs in the Cloud.</strong> After facing the limitations of local hardware while presenting to senior industry leaders and feeling the weight of letting down my teammates after months of hard work, I decided to move beyond academic samples and face the raw intimidation of Big Data, Machine Learning, and Cloud infrastructure head-on.
+            </p>
+            <p className="relative z-10">
+              I wanted an all-rounder objective where I could implement my passion for Machine Learning and Deep Learning while mastering the massive scale of the GCP ecosystem. Pushing myself out of my comfort zone, I architected this system from scratch from ingesting humongous datasets to logging experiments in MLflow and deploying a production-ready gateway.
+            </p>
+            <p className="italic text-gray-500 text-lg md:text-xl relative z-10 border-l-2 border-hm-red pl-6 py-2 my-10">
+              Building this end-to-end was as intimidating as it was satisfying; it gave me the confidence to move past the 'Local Machine Bottleneck' and prepare for the complex, high-stakes challenges of enterprise engineering.
+            </p>
+          </div>
+          
+          <div className="mt-16 flex items-center justify-center gap-5">
+            <div className="w-16 h-16 border border-gray-200 shadow-xl rounded-full overflow-hidden shrink-0 flex items-center justify-center bg-white relative">
+              <img src="/profile.jpg" alt="Gokul" className="w-full h-full object-cover object-top absolute inset-0 z-10" onError={(e) => { e.target.style.display = 'none'; }} />
+              <div className="font-serif text-2xl font-bold text-hm-black z-0">G</div>
+            </div>
+            <div className="text-left">
+              <p className="font-sans text-sm font-bold tracking-[0.15em] uppercase text-hm-black">Gokul Kumar Kesavan</p>
+              <p className="font-sans text-[10px] tracking-widest uppercase text-gray-500 mt-1">Systems Architect</p>
+            </div>
+          </div>
+        </motion.div>
       </section>
 
-      {/* Note: The Live Status Ticker (Social Proof) is globally injected via App.jsx */}
     </div>
   );
 }

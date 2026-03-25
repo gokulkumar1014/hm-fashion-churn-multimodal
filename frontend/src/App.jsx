@@ -54,14 +54,14 @@ export default function App() {
         </main>
 
         {/* Global System Status Footer Ticker */}
-        <div className="fixed bottom-0 left-0 w-full bg-hm-black text-white h-10 px-4 text-center text-xs font-mono tracking-widest z-[100] flex items-center justify-center gap-2 md:gap-4 shadow-2xl border-t border-zinc-800 flex-wrap">
-          <span className="flex items-center gap-2 whitespace-nowrap"><span className="text-green-500 animate-pulse text-[10px]">🟢</span> Engine Status: Active</span>
-          <span className="text-hm-gray/50 hidden md:inline">|</span>
-          <span className="whitespace-nowrap text-gray-300">Inference Latency: &lt;200ms</span>
-          <span className="text-hm-gray/50 hidden md:inline">|</span>
-          <span className="whitespace-nowrap text-gray-300">Training Recall: 0.88</span>
-          <span className="text-hm-gray/50 hidden md:inline">|</span>
-          <span className="whitespace-nowrap text-gray-300">Environment: GCP Cloud Run</span>
+        <div className="fixed bottom-0 left-0 w-full bg-hm-black text-white h-10 px-4 text-center text-[10px] sm:text-[11px] font-mono tracking-widest z-[100] flex items-center justify-center gap-2 md:gap-4 shadow-2xl border-t border-zinc-800 flex-wrap overflow-hidden">
+           <span className="flex items-center gap-2 whitespace-nowrap"><span className="text-green-500 animate-pulse text-[8px]">●</span> Engine: Cloud Run</span>
+           <span className="text-hm-gray/50 hidden sm:inline">|</span>
+           <span className="flex items-center gap-2 whitespace-nowrap"><span className="text-green-500 animate-pulse text-[8px]">●</span> GCS Connectivity: Stable</span>
+           <span className="text-hm-gray/50 hidden md:inline">|</span>
+           <span className="whitespace-nowrap text-gray-300 hidden sm:inline">Latency: Warm-Start Optimized</span>
+           <span className="text-hm-gray/50 hidden md:inline">|</span>
+           <span className="whitespace-nowrap text-gray-300">Model Recall: 0.88</span>
         </div>
       </div>
     </BrowserRouter>
