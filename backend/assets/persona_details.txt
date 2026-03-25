@@ -1,0 +1,120 @@
+=== PERSONA ID: 0 ===
+ - [706016001] Jade HW Skinny Denim TRS (Divided > Trousers > Black)
+   Desc: High-waisted jeans in washed superstretch denim with a zip fly and button, fake front pockets, real back pockets and super-skinny legs.
+ - [706016002] Jade HW Skinny Denim TRS (Divided > Trousers > Light Blue)
+   Desc: High-waisted jeans in washed superstretch denim with a zip fly and button, fake front pockets, real back pockets and super-skinny legs.
+ - [372860001] 7p Basic Shaftless (Ladieswear > Socks > Black)
+   Desc: Fine-knit trainer socks in a soft cotton blend.
+ - [610776002] Tilly (1) (Ladieswear > T-shirt > Black)
+   Desc: T-shirt in lightweight jersey with a rounded hem. Slightly longer at the back.
+ - [464297007] Greta Thong Mynta Low 3p (Ladieswear > Underwear bottom > Black)
+   Desc: Thong briefs in cotton jersey with a wide lace trim at the top. Low waist, lined gusset, narrow sides and a string back.
+
+=== PERSONA ID: 1 ===
+ - [706016001] Jade HW Skinny Denim TRS (Divided > Trousers > Black)
+   Desc: High-waisted jeans in washed superstretch denim with a zip fly and button, fake front pockets, real back pockets and super-skinny legs.
+ - [706016002] Jade HW Skinny Denim TRS (Divided > Trousers > Light Blue)
+   Desc: High-waisted jeans in washed superstretch denim with a zip fly and button, fake front pockets, real back pockets and super-skinny legs.
+ - [372860001] 7p Basic Shaftless (Ladieswear > Socks > Black)
+   Desc: Fine-knit trainer socks in a soft cotton blend.
+ - [610776002] Tilly (1) (Ladieswear > T-shirt > Black)
+   Desc: T-shirt in lightweight jersey with a rounded hem. Slightly longer at the back.
+ - [759871002] Tilda tank (Divided > Vest top > Black)
+   Desc: Cropped, fitted top in cotton jersey with narrow shoulder straps.
+
+=== PERSONA ID: 2 ===
+ - [706016001] Jade HW Skinny Denim TRS (Divided > Trousers > Black)
+   Desc: High-waisted jeans in washed superstretch denim with a zip fly and button, fake front pockets, real back pockets and super-skinny legs.
+ - [706016002] Jade HW Skinny Denim TRS (Divided > Trousers > Light Blue)
+   Desc: High-waisted jeans in washed superstretch denim with a zip fly and button, fake front pockets, real back pockets and super-skinny legs.
+ - [372860001] 7p Basic Shaftless (Ladieswear > Socks > Black)
+   Desc: Fine-knit trainer socks in a soft cotton blend.
+ - [610776002] Tilly (1) (Ladieswear > T-shirt > Black)
+   Desc: T-shirt in lightweight jersey with a rounded hem. Slightly longer at the back.
+ - [759871002] Tilda tank (Divided > Vest top > Black)
+   Desc: Cropped, fitted top in cotton jersey with narrow shoulder straps.
+
+=== PERSONA ID: 3 ===
+ - [706016001] Jade HW Skinny Denim TRS (Divided > Trousers > Black)
+   Desc: High-waisted jeans in washed superstretch denim with a zip fly and button, fake front pockets, real back pockets and super-skinny legs.
+ - [706016002] Jade HW Skinny Denim TRS (Divided > Trousers > Light Blue)
+   Desc: High-waisted jeans in washed superstretch denim with a zip fly and button, fake front pockets, real back pockets and super-skinny legs.
+ - [372860001] 7p Basic Shaftless (Ladieswear > Socks > Black)
+   Desc: Fine-knit trainer socks in a soft cotton blend.
+ - [610776002] Tilly (1) (Ladieswear > T-shirt > Black)
+   Desc: T-shirt in lightweight jersey with a rounded hem. Slightly longer at the back.
+ - [759871002] Tilda tank (Divided > Vest top > Black)
+   Desc: Cropped, fitted top in cotton jersey with narrow shoulder straps.
+
+=== PERSONA ID: 4 ===
+ - [706016001] Jade HW Skinny Denim TRS (Divided > Trousers > Black)
+   Desc: High-waisted jeans in washed superstretch denim with a zip fly and button, fake front pockets, real back pockets and super-skinny legs.
+ - [706016002] Jade HW Skinny Denim TRS (Divided > Trousers > Light Blue)
+   Desc: High-waisted jeans in washed superstretch denim with a zip fly and button, fake front pockets, real back pockets and super-skinny legs.
+ - [372860001] 7p Basic Shaftless (Ladieswear > Socks > Black)
+   Desc: Fine-knit trainer socks in a soft cotton blend.
+ - [610776002] Tilly (1) (Ladieswear > T-shirt > Black)
+   Desc: T-shirt in lightweight jersey with a rounded hem. Slightly longer at the back.
+ - [759871002] Tilda tank (Divided > Vest top > Black)
+   Desc: Cropped, fitted top in cotton jersey with narrow shoulder straps.
+
+=== PERSONA ID: 5 ===
+ - [706016001] Jade HW Skinny Denim TRS (Divided > Trousers > Black)
+   Desc: High-waisted jeans in washed superstretch denim with a zip fly and button, fake front pockets, real back pockets and super-skinny legs.
+ - [706016002] Jade HW Skinny Denim TRS (Divided > Trousers > Light Blue)
+   Desc: High-waisted jeans in washed superstretch denim with a zip fly and button, fake front pockets, real back pockets and super-skinny legs.
+ - [372860001] 7p Basic Shaftless (Ladieswear > Socks > Black)
+   Desc: Fine-knit trainer socks in a soft cotton blend.
+ - [610776002] Tilly (1) (Ladieswear > T-shirt > Black)
+   Desc: T-shirt in lightweight jersey with a rounded hem. Slightly longer at the back.
+ - [759871002] Tilda tank (Divided > Vest top > Black)
+   Desc: Cropped, fitted top in cotton jersey with narrow shoulder straps.
+
+=== PERSONA ID: 6 ===
+ - [706016001] Jade HW Skinny Denim TRS (Divided > Trousers > Black)
+   Desc: High-waisted jeans in washed superstretch denim with a zip fly and button, fake front pockets, real back pockets and super-skinny legs.
+ - [706016002] Jade HW Skinny Denim TRS (Divided > Trousers > Light Blue)
+   Desc: High-waisted jeans in washed superstretch denim with a zip fly and button, fake front pockets, real back pockets and super-skinny legs.
+ - [372860001] 7p Basic Shaftless (Ladieswear > Socks > Black)
+   Desc: Fine-knit trainer socks in a soft cotton blend.
+ - [610776002] Tilly (1) (Ladieswear > T-shirt > Black)
+   Desc: T-shirt in lightweight jersey with a rounded hem. Slightly longer at the back.
+ - [759871002] Tilda tank (Divided > Vest top > Black)
+   Desc: Cropped, fitted top in cotton jersey with narrow shoulder straps.
+
+=== PERSONA ID: 7 ===
+ - [706016001] Jade HW Skinny Denim TRS (Divided > Trousers > Black)
+   Desc: High-waisted jeans in washed superstretch denim with a zip fly and button, fake front pockets, real back pockets and super-skinny legs.
+ - [706016002] Jade HW Skinny Denim TRS (Divided > Trousers > Light Blue)
+   Desc: High-waisted jeans in washed superstretch denim with a zip fly and button, fake front pockets, real back pockets and super-skinny legs.
+ - [372860001] 7p Basic Shaftless (Ladieswear > Socks > Black)
+   Desc: Fine-knit trainer socks in a soft cotton blend.
+ - [759871002] Tilda tank (Divided > Vest top > Black)
+   Desc: Cropped, fitted top in cotton jersey with narrow shoulder straps.
+ - [610776002] Tilly (1) (Ladieswear > T-shirt > Black)
+   Desc: T-shirt in lightweight jersey with a rounded hem. Slightly longer at the back.
+
+=== PERSONA ID: 8 ===
+ - [706016001] Jade HW Skinny Denim TRS (Divided > Trousers > Black)
+   Desc: High-waisted jeans in washed superstretch denim with a zip fly and button, fake front pockets, real back pockets and super-skinny legs.
+ - [706016002] Jade HW Skinny Denim TRS (Divided > Trousers > Light Blue)
+   Desc: High-waisted jeans in washed superstretch denim with a zip fly and button, fake front pockets, real back pockets and super-skinny legs.
+ - [372860001] 7p Basic Shaftless (Ladieswear > Socks > Black)
+   Desc: Fine-knit trainer socks in a soft cotton blend.
+ - [610776002] Tilly (1) (Ladieswear > T-shirt > Black)
+   Desc: T-shirt in lightweight jersey with a rounded hem. Slightly longer at the back.
+ - [464297007] Greta Thong Mynta Low 3p (Ladieswear > Underwear bottom > Black)
+   Desc: Thong briefs in cotton jersey with a wide lace trim at the top. Low waist, lined gusset, narrow sides and a string back.
+
+=== PERSONA ID: 9 ===
+ - [706016001] Jade HW Skinny Denim TRS (Divided > Trousers > Black)
+   Desc: High-waisted jeans in washed superstretch denim with a zip fly and button, fake front pockets, real back pockets and super-skinny legs.
+ - [706016002] Jade HW Skinny Denim TRS (Divided > Trousers > Light Blue)
+   Desc: High-waisted jeans in washed superstretch denim with a zip fly and button, fake front pockets, real back pockets and super-skinny legs.
+ - [372860001] 7p Basic Shaftless (Ladieswear > Socks > Black)
+   Desc: Fine-knit trainer socks in a soft cotton blend.
+ - [610776002] Tilly (1) (Ladieswear > T-shirt > Black)
+   Desc: T-shirt in lightweight jersey with a rounded hem. Slightly longer at the back.
+ - [759871002] Tilda tank (Divided > Vest top > Black)
+   Desc: Cropped, fitted top in cotton jersey with narrow shoulder straps.
+

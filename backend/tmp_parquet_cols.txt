@@ -1,0 +1,24 @@
+
+=== customer_stats.parquet ===
+Columns: ['customer_id', 'total_purchases', 'estimated_ltv', 'member_since', 'last_purchase']
+
+=== customer_stats.parquet ===
+ERROR: 'charmap' codec can't encode characters in position 24-99: character maps to <undefined>
+
+=== customer_bio.parquet ===
+Columns: ['customer_id', 'age', 'club_member_status', 'fashion_news_frequency']
+
+=== customer_bio.parquet ===
+ERROR: 'charmap' codec can't encode characters in position 24-99: character maps to <undefined>
+
+=== history_narrative.parquet ===
+Columns: ['customer_id', 't_dat', 'article_id', 'prod_name']
+
+=== history_narrative.parquet ===
+ERROR: 'charmap' codec can't encode characters in position 24-99: character maps to <undefined>
+
+=== persona_best_sellers.parquet ===
+Columns: ['style_persona', 'article_id', 'count']
+
+=== persona_best_sellers.parquet ===
+ERROR: 'charmap' codec can't encode characters in position 24-61: character maps to <undefined>
