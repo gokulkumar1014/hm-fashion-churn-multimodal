@@ -416,7 +416,7 @@ export default function Blueprint() {
           <Motion.section variants={itemVariants} className="relative group">
             <div className="mt-16 p-8 bg-white border border-slate-200 rounded-2xl shadow-[0_20px_30px_rgba(15,23,42,0.08)]">
               <p className="text-sm text-slate-600 leading-relaxed">
-                Disclaimer: This is an independent educational case study. 'The H&amp;M Intelligence Lab' is not affiliated with, sponsored by, or endorsed by H&amp;M Group. All trademarks are the property of their respective owners.
+                Disclaimer: This is an independent educational case study. This H&amp;M Intelligence Lab is not affiliated with, sponsored by, or endorsed by H&amp;M Group. All trademarks are the property of their respective owners.
               </p>
             </div>
           </Motion.section>
