@@ -31,8 +31,8 @@ function Navbar() {
       <div className="hidden md:flex gap-10 font-sans text-[11px] uppercase tracking-widest font-medium">
         <Link to="/" className={getLinkClass('/')}>Home</Link>
         <Link to="/playground" className={getLinkClass('/playground')}>Engine</Link>
-        <Link to="/blueprint" className={getLinkClass('/blueprint')}>Blueprint</Link>
         <Link to="/social" className={getLinkClass('/social')}>Social Pulse</Link>
+        <Link to="/blueprint" className={getLinkClass('/blueprint')}>Blueprint</Link>
       </div>
     </nav>
   );
@@ -48,8 +48,8 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Hero />} />
             <Route path="/playground" element={<Playground />} />
-            <Route path="/blueprint" element={<Blueprint />} />
             <Route path="/social" element={<SocialPulse />} />
+            <Route path="/blueprint" element={<Blueprint />} />
           </Routes>
         </main>
 
