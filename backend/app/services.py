@@ -159,7 +159,10 @@ class StrategyEngine:
                 "customer_id": customer_id,
                 "age": dossier.get("age"),
                 "status": dossier.get("club_member_status"),
-                "ltv": float(dossier.get("estimated_ltv", 0.0))
+                "ltv": float(dossier.get("estimated_ltv", 0.0)),
+                "total_purchases": int(dossier.get("total_purchases", 0)),
+                "member_since": dossier.get("member_since"),
+                "last_purchase": dossier.get("last_purchase")
             },
             "risk_assessment": {
                 "churn_probability": churn_prob,
