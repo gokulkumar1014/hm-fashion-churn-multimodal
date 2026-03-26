@@ -122,6 +122,7 @@ export default function Blueprint() {
                   </div>
                 ))}
               </div>
+
             </div>
           </Motion.section>
 
@@ -164,10 +165,10 @@ export default function Blueprint() {
                   <p className="text-gray-600 text-sm leading-relaxed">
                     <strong>MLflow ledger</strong>: every hyperparameter and loss curve logged for <strong>100% reproducibility</strong> and auditability.
                   </p>
-                </div>
               </div>
             </div>
-          </Motion.section>
+          </div>
+        </Motion.section>
 
           {/* 03. TWO TOWER ARCHITECTURE */}
           <Motion.section variants={itemVariants} className="relative group">
@@ -180,12 +181,13 @@ export default function Blueprint() {
               </div>
               <h2 className="text-3xl font-serif text-hm-black">The Multi-Modal "Two-Tower" Architecture</h2>
             </div>
-            <div className="bg-gradient-to-br from-white/95 to-rose-50/30 backdrop-blur-xl border border-gray-200/60 rounded-2xl p-8 md:p-12 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
-              <p className="text-gray-600 leading-relaxed text-[15px] md:text-base mb-10">
-                The core innovation of this engine is the <strong>Fusion of Senses</strong>. We don't just look at when a person shops; we look at what aesthetic they are chasing.
-              </p>
+            <div className="relative overflow-hidden bg-white/90 backdrop-blur-xl border border-rose-100/60 rounded-2xl p-8 md:p-12 shadow-[0_20px_25px_rgba(0,0,0,0.08)]">
+              <div className="relative z-10 space-y-8">
+                <p className="text-gray-600 leading-relaxed text-[15px] md:text-base mb-10">
+                  The core innovation of this engine is the <strong>Fusion of Senses</strong>. We don't just look at when a person shops; we look at what aesthetic they are chasing.
+                </p>
 
-              <div className="space-y-8">
+                <div className="space-y-8">
                 {/* Tower A */}
                 <div className="relative pl-8 border-l-2 border-rose-200">
                   <div className="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-white border-4 border-rose-500"></div>
@@ -204,8 +206,8 @@ export default function Blueprint() {
                 </div>
 
                 {/* Tower B */}
-                <div className="relative pl-8 border-l-2 border-orange-200">
-                  <div className="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-white border-4 border-orange-500"></div>
+                <div className="relative pl-8 border-l-2 border-rose-200">
+                  <div className="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-white border-4 border-rose-500"></div>
                   <h3 className="font-serif text-xl text-hm-black mb-4">Tower B: The Visual DNA (Phase 2)</h3>
                   <div className="space-y-3">
                     <p className="text-sm text-gray-600">
@@ -214,16 +216,20 @@ export default function Blueprint() {
                     <p className="text-sm text-gray-600">
                       <strong className="text-gray-900">The Logic:</strong> Using a pre-trained ResNet-50, we converted 30GB of raw pixels into 2,048-dimensional mathematical "embeddings." We effectively shrank 30GB of data into an 800MB "Style DNA" vault.
                     </p>
-                    <div className="mt-4 bg-orange-50/80 border border-orange-100 p-4 rounded-lg">
-                      <p className="text-sm text-orange-900">
-                        <strong className="font-bold">The Breakthrough:</strong> Fusing Visual DNA with Behavioral sequences broke the "Behavioral Glass Ceiling," elevating our final Recall to 0.88.
-                      </p>
-                    </div>
+                      <div className="mt-4 bg-white/80 border border-rose-200 p-4 rounded-lg shadow-[0_15px_30px_rgba(59,130,246,0.1)]">
+                        <p className="text-sm text-rose-600">
+                          <strong className="font-bold">The Breakthrough:</strong> Fusing Visual DNA with Behavioral sequences broke the "Behavioral Glass Ceiling," elevating our final Recall to 0.88.
+                        </p>
+                      </div>
                   </div>
                 </div>
               </div>
+              <p className="mt-8 text-sm md:text-base text-gray-600 leading-relaxed">
+                For a line-by-line breakdown of the <strong>"Aesthetic Drift"</strong> hypothesis and the full architecture, read the <a className="text-blue-600 underline font-semibold" href="https://medium.com/@gokulkumar0639/the-architecture-of-aesthetic-intelligence-engineering-a-two-tower-multi-modal-churn-engine-b9bf97a5a35c" target="_blank" rel="noreferrer">Technical Deep-Dive on Medium</a>.
+              </p>
             </div>
-          </Motion.section>
+          </div>
+        </Motion.section>
 
           {/* 04. INDUSTRIAL STACK */}
           <Motion.section variants={itemVariants} className="relative group">
@@ -297,42 +303,54 @@ export default function Blueprint() {
               </div>
               <h2 className="text-3xl font-serif text-hm-black">The MLOps Ledger: Experiment Tracking</h2>
             </div>
-            <div className="bg-white/70 backdrop-blur-xl border border-gray-200/60 rounded-2xl p-8 md:p-12 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
-              <p className="text-gray-600 leading-relaxed text-[15px] md:text-base mb-8">
-                We don't "guess" in this lab; we document. Using MLflow hosted on DagsHub, every hyperparameter and loss curve was logged for 100% reproducibility.
-              </p>
+            <div className="relative overflow-hidden bg-white/90 border border-amber-100/60 rounded-2xl p-8 md:p-12 shadow-[0_12px_30px_rgba(251,191,36,0.15)]">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.07),transparent_70%)] pointer-events-none"></div>
+              <div className="relative z-10 space-y-8">
+                <p className="text-gray-700 leading-relaxed text-[15px] md:text-base mb-8">
+                  We don't "guess" in this lab! we document. Using MLflow hosted on DagsHub, every hyperparameter and loss curve was logged for 100% reproducibility.
+                </p>
 
-              <ul className="space-y-6">
-                <li className="flex gap-4">
-                  <div className="mt-1">
-                    <Focus className="text-amber-500" size={20} />
-                  </div>
-                  <div>
-                    <strong className="text-gray-900 block mb-1">Experimentation</strong>
-                    <p className="text-sm text-gray-600 font-light leading-relaxed">Tracked multiple iterations of LSTM weights to solve class imbalance.</p>
-                  </div>
-                </li>
-                <li className="flex gap-4">
-                  <div className="mt-1">
-                    <Box className="text-amber-500" size={20} />
-                  </div>
-                  <div>
-                    <strong className="text-gray-900 block mb-1">Model Registry</strong>
-                    <p className="text-sm text-gray-600 font-light leading-relaxed">Our "Champion Model" was versioned and registered before being pushed to the production API.</p>
-                  </div>
-                </li>
-                <li className="flex gap-4">
-                  <div className="mt-1">
-                    <Activity className="text-amber-500" size={20} />
-                  </div>
-                  <div>
-                    <strong className="text-gray-900 block mb-1">The Metric</strong>
-                    <p className="text-sm text-gray-600 font-light leading-relaxed">
-                      We prioritized Recall over Accuracy—because in churn prediction, missing a leaving customer is more expensive than a false alarm.
-                    </p>
-                  </div>
-                </li>
-              </ul>
+                <ul className="space-y-6">
+                  <li className="flex gap-4">
+                    <div className="mt-1">
+                      <Focus className="text-amber-500" size={20} />
+                    </div>
+                    <div>
+                      <strong className="text-gray-900 block mb-1">Experimentation</strong>
+                      <p className="text-sm text-gray-600 font-light leading-relaxed">Tracked multiple iterations of LSTM weights to solve class imbalance.</p>
+                    </div>
+                  </li>
+                  <li className="flex gap-4">
+                    <div className="mt-1">
+                      <Box className="text-amber-500" size={20} />
+                    </div>
+                    <div>
+                      <strong className="text-gray-900 block mb-1">Model Registry</strong>
+                      <p className="text-sm text-gray-600 font-light leading-relaxed">Our "Champion Model" was versioned and registered before being pushed to the production API.</p>
+                    </div>
+                  </li>
+                  <li className="flex gap-4">
+                    <div className="mt-1">
+                      <Activity className="text-amber-500" size={20} />
+                    </div>
+                    <div>
+                      <strong className="text-gray-900 block mb-1">The Metric</strong>
+                      <p className="text-sm text-gray-600 font-light leading-relaxed">
+                        We prioritized Recall over Accuracy because in churn prediction, missing a leaving customer is more expensive than a false alarm.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+
+                <div className="flex flex-col gap-3 text-sm text-slate-600 pt-4 border-t border-amber-100/70">
+                  <span>
+                    For detailed logs and model registry: <a className="text-blue-600 underline font-semibold" href="https://dagshub.com/gokulkumar1014/hm-fashion-churn-multimodal/experiments" target="_blank" rel="noreferrer">MLflow</a>
+                  </span>
+                  <span>
+                    For the complete architectural codebase and implementation: <a className="text-blue-600 underline font-semibold" href="https://github.com/gokulkumar1014/hm-fashion-churn-multimodal" target="_blank" rel="noreferrer">GitHub</a>
+                  </span>
+                </div>
+              </div>
             </div>
           </Motion.section>
 
@@ -348,33 +366,37 @@ export default function Blueprint() {
               <h2 className="text-3xl font-serif text-hm-black">The Cloud-Native Bridge</h2>
             </div>
 
-            <div className="relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-8 md:p-12 shadow-2xl overflow-hidden border border-slate-700">
-              {/* Outer Glow in Dark Mode */}
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(6,182,212,0.1),transparent_50%)] pointer-events-none"></div>
-
-              <p className="text-gray-300 leading-relaxed text-[15px] md:text-base mb-8 relative z-10 font-light">
+            <div className="relative overflow-hidden bg-gradient-to-br from-white via-slate-50 to-slate-100 border border-slate-200/70 rounded-2xl p-8 md:p-12 shadow-[0_20px_40px_rgba(15,23,42,0.08)]">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(14,165,233,0.1),transparent_70%)] pointer-events-none"></div>
+              <p className="text-slate-600 leading-relaxed text-[15px] md:text-base mb-8 relative z-10 font-light">
                 The final stage was turning a `.pth` model file into a live service.
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
-                <div className="bg-slate-800/80 border border-slate-700/50 p-6 rounded-xl backdrop-blur-sm hover:border-cyan-500/50 transition-colors">
-                  <h4 className="text-cyan-400 font-mono text-xs uppercase tracking-widest mb-3 font-bold">Backend</h4>
-                  <p className="text-sm text-gray-400 font-light leading-relaxed">
-                    <strong className="text-gray-200">FastAPI</strong> acting as an asynchronous gateway.
-                  </p>
-                </div>
-                <div className="bg-slate-800/80 border border-slate-700/50 p-6 rounded-xl backdrop-blur-sm hover:border-cyan-500/50 transition-colors">
-                  <h4 className="text-cyan-400 font-mono text-xs uppercase tracking-widest mb-3 font-bold">Frontend</h4>
-                  <p className="text-sm text-gray-400 font-light leading-relaxed">
-                    <strong className="text-gray-200">React + Tailwind</strong> providing the "Executive Interface."
-                  </p>
-                </div>
-                <div className="bg-slate-800/80 border border-slate-700/50 p-6 rounded-xl backdrop-blur-sm hover:border-cyan-500/50 transition-colors">
-                  <h4 className="text-cyan-400 font-mono text-xs uppercase tracking-widest mb-3 font-bold">Deployment</h4>
-                  <p className="text-sm text-gray-400 font-light leading-relaxed">
-                    Containerized via <strong className="text-gray-200">Docker</strong> and deployed to <strong className="text-gray-200">GCP Cloud Run</strong>, utilizing internal VPC traffic to keep data egress costs near zero.
-                  </p>
-                </div>
+                {[
+                  {
+                    label: 'Backend',
+                    desc: <><strong className="text-slate-900">FastAPI</strong> acting as an asynchronous gateway.</>
+                  },
+                  {
+                    label: 'Frontend',
+                    desc: <><strong className="text-slate-900">React + Tailwind</strong> providing the "Executive Interface."</>
+                  },
+                  {
+                    label: 'Deployment',
+                    desc: <><strong className="text-slate-900">Docker</strong> + <strong className="text-slate-900">GCP Cloud Run</strong>, containerized with internal VPC traffic for efficient egress.</>
+                  }
+                ].map((item) => (
+                  <div
+                    key={item.label}
+                    className="bg-white/80 border border-slate-200 rounded-xl p-6 shadow-[0_8px_20px_rgba(15,23,42,0.08)] hover:bg-white hover:border-cyan-300 transform hover:-translate-y-1 transition duration-300"
+                  >
+                    <h4 className="text-cyan-500 font-mono text-xs uppercase tracking-widest mb-3 font-bold">{item.label}</h4>
+                    <p className="text-sm text-slate-500 leading-relaxed font-light">
+                      {item.desc}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
           </Motion.section>
