@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Database, Cloud, Activity } from 'lucide-react';
+import { ArrowRight, Database, Cloud, Activity, Linkedin, Globe } from 'lucide-react';
 
 const IMAGES = [
   'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
@@ -266,14 +266,36 @@ export default function Hero() {
             </p>
           </div>
           
-          <div className="mt-16 flex items-center justify-center gap-5">
-            <div className="w-16 h-16 border border-gray-200 shadow-xl rounded-full overflow-hidden shrink-0 flex items-center justify-center bg-white relative">
-              <img src="/profile.jpg" alt="Gokul" className="w-full h-full object-cover object-top absolute inset-0 z-10" onError={(e) => { e.target.style.display = 'none'; }} />
-              <div className="font-serif text-2xl font-bold text-hm-black z-0">G</div>
-            </div>
-            <div className="text-left">
-              <p className="font-sans text-sm font-bold tracking-[0.15em] uppercase text-hm-black">Gokul Kumar Kesavan</p>
-              <p className="font-sans text-[10px] tracking-widest uppercase text-gray-500 mt-1">Systems Architect</p>
+          <div className="mt-16 flex flex-col items-center gap-8">
+            <div className="flex flex-col md:flex-row items-center gap-6">
+              <div className="w-20 h-20 border border-gray-200 shadow-xl rounded-full overflow-hidden flex items-center justify-center bg-white relative">
+                <img src="/profile.jpg" alt="Gokul" className="w-full h-full object-cover object-top absolute inset-0 z-10" onError={(e) => { e.target.style.display = 'none'; }} />
+                <div className="font-serif text-3xl font-bold text-hm-black z-0">G</div>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <p className="font-sans text-sm font-bold tracking-[0.15em] uppercase text-hm-black">Gokul Kumar Kesavan</p>
+                <p className="font-sans text-[10px] tracking-widest uppercase text-gray-500">Systems Architect</p>
+                <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                  <a
+                    href="https://www.linkedin.com/in/gokul-kumar-kesavan/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="group flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-full text-sm font-semibold text-gray-700 hover:border-[#0A66C2] hover:text-[#0A66C2] transition-all duration-300 shadow-sm hover:shadow-lg"
+                  >
+                    <Linkedin size={18} className="text-gray-500 group-hover:text-[#0A66C2]" />
+                    LinkedIn
+                  </a>
+                  <a
+                    href="https://gokulkumar1014.github.io/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="group flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-full text-sm font-semibold text-gray-700 hover:border-black hover:text-black transition-all duration-300 shadow-sm hover:shadow-lg"
+                  >
+                    <Globe size={18} className="text-gray-500 group-hover:text-black" />
+                    Portfolio
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </motion.div>
