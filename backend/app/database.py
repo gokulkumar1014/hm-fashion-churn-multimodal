@@ -11,6 +11,22 @@ load_dotenv()
 
 class HMLakehouse:
     _instance = None
+    
+    # Type hints to satisfy static type checkers (Pyre2/Pylance)
+    article_legend: pl.DataFrame
+    customer_bio: pl.DataFrame
+    customer_id_bridge: pl.DataFrame
+    customer_stats: pl.DataFrame
+    history_narrative: pl.DataFrame
+    persona_best_sellers: pl.DataFrame
+    similarity_index: pl.DataFrame
+    visionary_champion: ort.InferenceSession
+    style_profiles_df: pl.DataFrame
+    encyclopedia_df: pl.DataFrame
+    behavioral_sequences_df: pl.DataFrame
+    int_to_hex: dict
+    hex_to_int: dict
+    global_pulse_stats: dict
 
     def __new__(cls):
         if cls._instance is None:
@@ -57,7 +73,7 @@ class HMLakehouse:
             print("🧬 [Pulse Aggregator] Compiling 1.3M Global Strategy Vectors...")
             
             # 1. Global Risk Calibration (The 'Recall-Adjusted' Metric)
-            global_risk_pct = round((408499 / 1362281) * 0.88 * 100, 1)
+            global_risk_pct = float(f"{((408499 / 1362281) * 0.88 * 100):.1f}")
             
             # 2. Market Velocity (Distribution-Based Delta for Top 3)
             history_str = self.history_narrative.with_columns(pl.col("article_id").cast(pl.String).str.zfill(10).alias("article_id_str"))
