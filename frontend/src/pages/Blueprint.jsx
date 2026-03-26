@@ -35,20 +35,29 @@ export default function Blueprint() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
-          className="mb-20"
+          className="mb-20 space-y-6"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 shadow-sm mb-6">
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 shadow-sm mb-2 w-fit">
             <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
             <span className="text-[10px] font-mono uppercase tracking-widest text-gray-500 font-bold">System Architecture</span>
           </div>
-          <h1 className="font-serif text-5xl md:text-7xl text-hm-black leading-tight tracking-tight mb-6">
+          <h1 className="font-serif text-5xl md:text-7xl text-hm-black leading-tight tracking-tight">
             The Blueprint
           </h1>
-          <p className="text-xl md:text-2xl text-gray-400 font-light max-w-3xl leading-relaxed">
-            From 31 million flat transactions to a unified, context-aware artificial intelligence. Here is the technical foundation supporting the Social Pulse platform.
-          </p>
+          <div className="relative">
+            <div className="absolute inset-0 transform scale-95 md:scale-100 rounded-[30px] bg-gradient-to-br from-slate-50 via-white to-blue-50 shadow-[0_35px_60px_rgba(15,23,42,0.18)] opacity-90 pointer-events-none"></div>
+            <div className="relative rounded-[30px] border border-slate-200/90 bg-white/80 backdrop-blur-xl p-8 md:p-10 shadow-[0_20px_70px_rgba(15,23,42,0.2)] space-y-6 overflow-hidden">
+              <div className="absolute -bottom-10 -right-12 w-40 h-40 rounded-full bg-blue-200/40 blur-[80px] pointer-events-none"></div>
+              <div className="absolute -top-10 left-1/4 w-36 h-36 rounded-full bg-amber-200/30 blur-[60px] pointer-events-none"></div>
+              <p className="text-lg md:text-xl text-slate-700 leading-relaxed relative">
+                Let me be very honest: I used to hate the idea of a <strong>churn prediction</strong> project. In the academic world, it's often seen as the <strong>'safe' choice</strong> - a predictable exercise in <strong>logistic regression</strong> that usually ends up as a static file on a forgotten hard drive. But I realized that while the topic might be common, the <strong>business value</strong> is undeniable. In a <strong>31-million-transaction <span className="text-slate-900 font-semibold">H&M</span></strong> ecosystem, churn is a silent, <strong>multi-million dollar</strong> killer.
+              </p>
+              <p className="text-lg md:text-xl text-slate-700 leading-relaxed relative">
+                I didn't want to build another <strong>'toy' model</strong>. I wanted to test my ability to handle the engineering weight of a <strong>1.3-million-customer universe</strong> on the cloud. I wanted to break the <strong>Behavioral Glass Ceiling</strong> and see if I could fuse <strong>Computer Vision</strong> with temporal logic. This project isn't just about math; it's about building the <strong>bridge</strong> between raw AI and a clean, usable interface. Because an engine that only hears the rhythm but misses the soul isn't just blind - it's <strong>obsolete</strong>.
+              </p>
+            </div>
+          </div>
         </Motion.div>
-
         <Motion.div 
           variants={containerVariants}
           initial="hidden"
