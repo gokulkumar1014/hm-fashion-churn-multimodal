@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Activity, ShieldCheck, TrendingUp, AlertTriangle, Zap, Server } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 
 const PERSONA_DATA = [
   { id: 0, name: "The Modern Professional", items: ["Core Staple: High-waisted denim in power-stretch fabric.", "Essential: Basic black shaftless socks.", "Foundation: Classic fitted black T-shirt."], risk: "low", drift: 0.12, img: "https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?auto=format&fit=crop&w=500&q=80" },
@@ -120,7 +121,7 @@ export default function SocialPulse() {
         </div>
 
         {/* 2. THE GLOBAL SENTIMENT KPI CARDS (LIGHT AIRY GLASSMORPHISM) */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-20">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           
           {/* A. Dominant Segment (Airy Emerald Glass) */}
           <motion.div 
@@ -275,6 +276,20 @@ export default function SocialPulse() {
 
         </div>
 
+        <div className="mb-20 max-w-3xl">
+          <div className="flex flex-wrap items-center gap-3 mb-4">
+            <span className="bg-slate-800 text-slate-100 px-3 py-1.5 rounded text-[11px] font-mono tracking-widest uppercase shadow-sm border border-slate-700">
+              // ROLE: STRATEGIC OVERVIEW — MARKET VELOCITY & SEGMENT RISK
+            </span>
+            <span className="bg-white border border-red-100 text-[#E50012] px-3 py-1.5 rounded text-[11px] font-mono tracking-widest font-bold uppercase shadow-[0_3px_12px_rgba(229,0,18,0.12)]">
+              [TARGET: CMO / STRATEGY LEAD]
+            </span>
+          </div>
+          <p className="text-[13px] md:text-sm font-sans text-gray-600 leading-relaxed border-l-2 border-gray-200 pl-4 py-1">
+            An executive-grade command center monitoring the H&M ecosystem. This view translates 1.3 million customers segmented into macro-level 'Style Tribes' based on their Style DNA and aggregate churn risk, allowing Leadership to pivot inventory based on mathematical 'Aesthetic Drift'.
+          </p>
+        </div>
+
         {/* 3. THE STYLE TRIBES PERSONA GRID */}
         <div className="mb-10">
           <div className="flex items-center justify-between border-b border-gray-200 pb-4 mb-8">
@@ -382,9 +397,16 @@ export default function SocialPulse() {
 
             <div className="relative z-10">
               {chatResponse ? (
-                <p className="font-serif text-xl md:text-2xl text-gray-700 leading-relaxed max-w-4xl">
-                  {chatResponse}
-                </p>
+                <div className="font-serif text-xl md:text-2xl text-gray-700 leading-relaxed max-w-4xl space-y-4">
+                  <ReactMarkdown
+                    components={{
+                      strong: ({node, ...props}) => <strong className="font-bold text-hm-black" {...props} />,
+                      p: ({node, ...props}) => <p className="mb-4 last:mb-0" {...props} />
+                    }}
+                  >
+                    {chatResponse}
+                  </ReactMarkdown>
+                </div>
               ) : (
                 <p className="font-serif text-xl md:text-2xl text-gray-400 leading-relaxed max-w-4xl animate-pulse">
                   Aggregating 1.3M behavioral timelines...

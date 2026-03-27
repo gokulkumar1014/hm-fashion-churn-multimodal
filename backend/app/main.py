@@ -74,7 +74,7 @@ def build_stage_guidance(summary: Dict[str, Any]) -> str:
     else:
         lines.append("Stage 1: Introduction completed; keep the persona in a confident tone without rehashing details.")
 
-    lines.append("Stage 2 (Normal Operation): Answer directly, professionally, and strategically. If the user asked a general question, reply concisely and remind them the 1.3M customer Style DNA lives behind hex IDs.")
+    lines.append("Stage 2 (Normal Operation): Answer directly, professionally, and strategically. If the user asked a general question, reply in a friendly and professional tone and remind them the 1.3M customer Style DNA lives behind hex IDs.")
 
     if summary["customer_ids_analyzed"] >= 2 or summary["turn_count"] >= 4:
         if not summary["secret_revealed"]:
@@ -291,7 +291,7 @@ async def get_chat_response(request: ChatRequest):
 
         async def stream_response(prompt):
             response_stream = await client.aio.models.generate_content_stream(
-                model='gemini-2.5-flash',
+                model='gemini-2.5-flash-lite',
                 contents=prompt
             )
             async for chunk in response_stream:

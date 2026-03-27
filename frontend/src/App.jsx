@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { Menu, X } from 'lucide-react';
 import Hero from './components/Hero';
 import Playground from './pages/Playground';
 import Blueprint from './pages/Blueprint';
@@ -16,6 +17,11 @@ function ScrollToTop() {
 function Navbar() {
   const location = useLocation();
   const path = location.pathname;
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [path]);
 
   const getLinkClass = (targetPath) => {
     return path === targetPath
@@ -23,17 +29,45 @@ function Navbar() {
       : "text-hm-gray hover:text-hm-black transition-colors";
   };
 
+  const mobileLinkClass = (targetPath) => {
+    return path === targetPath
+      ? "block text-hm-black font-bold border-l-2 border-hm-red pl-6 py-3 bg-gray-50 uppercase tracking-widest text-[11px]"
+      : "block text-hm-gray hover:text-hm-black pl-6 py-3 uppercase tracking-widest text-[11px] hover:bg-gray-50 transition-colors";
+  };
+
   return (
-    <nav className="w-full bg-hm-white border-b border-gray-100 flex justify-between items-center px-6 md:px-12 py-5 sticky top-0 z-50 shadow-sm">
-      <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/H%26M-Logo.svg" alt="H&M Logo" className="h-10" />
-      </Link>
-      <div className="hidden md:flex gap-10 font-sans text-[11px] uppercase tracking-widest font-medium">
-        <Link to="/" className={getLinkClass('/')}>Home</Link>
-        <Link to="/playground" className={getLinkClass('/playground')}>Engine</Link>
-        <Link to="/social" className={getLinkClass('/social')}>Social Pulse</Link>
-        <Link to="/blueprint" className={getLinkClass('/blueprint')}>Blueprint</Link>
+    <nav className="w-full bg-hm-white border-b border-gray-100 flex flex-col px-0 md:px-12 py-0 md:py-5 sticky top-0 z-50 shadow-sm relative">
+      <div className="flex justify-between items-center w-full px-6 md:px-0 py-5 md:py-0 bg-hm-white relative z-10">
+        <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/H%26M-Logo.svg" alt="H&M Logo" className="h-10" />
+        </Link>
+        
+        <div className="hidden md:flex gap-10 font-sans text-[11px] uppercase tracking-widest font-medium">
+          <Link to="/" className={getLinkClass('/')}>Home</Link>
+          <Link to="/playground" className={getLinkClass('/playground')}>Engine</Link>
+          <Link to="/social" className={getLinkClass('/social')}>Social Pulse</Link>
+          <Link to="/blueprint" className={getLinkClass('/blueprint')}>Blueprint</Link>
+        </div>
+
+        {/* Mobile Nav Hamburger */}
+        <button 
+          className="md:hidden text-hm-black p-2 -mr-2 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle mobile menu"
+        >
+          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
       </div>
+
+      {/* Mobile Dropdown Menu */}
+      {mobileMenuOpen && (
+        <div className="md:hidden w-full bg-hm-white border-t border-gray-100 shadow-lg flex flex-col py-2 animate-in fade-in slide-in-from-top-4 duration-200">
+          <Link to="/" className={mobileLinkClass('/')}>Home</Link>
+          <Link to="/playground" className={mobileLinkClass('/playground')}>Engine</Link>
+          <Link to="/social" className={mobileLinkClass('/social')}>Social Pulse</Link>
+          <Link to="/blueprint" className={mobileLinkClass('/blueprint')}>Blueprint</Link>
+        </div>
+      )}
     </nav>
   );
 }

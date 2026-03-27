@@ -81,7 +81,7 @@ const StrategicRow = ({ row, isActive, onActivate, onDeactivate }) => {
       whileInView={{ opacity: 1, x: 0 }}
       viewport={{ once: true, margin: "-100px" }}
       transition={{ delay: row.delay, duration: 0.5 }}
-      className={`grid grid-cols-1 md:grid-cols-12 border-b border-red-100 hover:bg-white transition-all duration-500 group relative overflow-hidden ${bgClass}`}
+      className={`grid grid-cols-12 border-b border-red-100 hover:bg-white transition-all duration-500 group relative overflow-hidden ${bgClass}`}
       onPointerEnter={() => onActivate(row.id)}
       onPointerMove={() => onActivate(row.id)}
       onPointerDown={() => onActivate(row.id)}
@@ -90,15 +90,15 @@ const StrategicRow = ({ row, isActive, onActivate, onDeactivate }) => {
     >
       <div className={`absolute inset-0 bg-red-50 ${overlayOpacity} transition-opacity duration-500`}></div>
       <div className={`absolute left-0 top-0 bottom-0 w-[4px] bg-hm-red transform origin-center z-10 transition-transform duration-500 ${barScale}`}></div>
-      <div className={`md:col-span-3 p-6 md:p-8 border-b md:border-b-0 md:border-r border-red-100 font-sans text-xs tracking-[0.1em] uppercase font-bold flex items-center transition-colors duration-500 relative z-10 ${textColor}`}>
+      <div className={`col-span-3 p-6 md:p-8 border-r border-red-100 font-sans text-xs tracking-[0.1em] uppercase font-bold flex items-center transition-colors duration-500 relative z-10 ${textColor}`}>
         {row.label}
       </div>
-      <div className={`md:col-span-4 p-6 md:p-8 border-b md:border-b-0 md:border-r border-red-100 flex items-center relative z-10 bg-white/50 transition-colors duration-500 ${isActive ? "group-hover:bg-transparent" : ""}`}>
+      <div className={`col-span-4 p-6 md:p-8 border-r border-red-100 flex items-center relative z-10 bg-white/50 transition-colors duration-500 ${isActive ? "group-hover:bg-transparent" : ""}`}>
         <p className={`${legacyDeco} line-through decoration-gray-300`}>
           {row.legacy}
         </p>
       </div>
-      <div className={`md:col-span-5 p-6 md:p-8 transition-transform duration-500 flex items-center pl-6 md:pl-10 relative z-10 ${advantageTransform}`}>
+      <div className={`col-span-5 p-6 md:p-8 transition-transform duration-500 flex items-center pl-8 md:pl-10 relative z-10 ${advantageTransform}`}>
         <p className="font-sans text-[15px] text-gray-600 leading-relaxed font-light">
           <strong className="text-hm-red tracking-[0.02em] block mb-1">{row.highlight}</strong> {row.description}
         </p>
@@ -277,26 +277,30 @@ export default function Hero() {
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.8 }} 
             className="w-full shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] rounded-2xl overflow-hidden flex flex-col relative border border-gray-200 bg-white">
             
-            {/* Table Header */}
-            <div className="grid grid-cols-1 md:grid-cols-12 bg-hm-black relative z-10 shadow-md">
-              <div className="md:col-span-3 p-5 md:p-6 border-b md:border-b-0 md:border-r border-zinc-800 font-sans text-[10px] uppercase tracking-[0.2em] font-bold text-gray-300">Feature Vector</div>
-              <div className="md:col-span-4 p-5 md:p-6 border-b md:border-b-0 md:border-r border-zinc-800 font-sans text-[10px] uppercase tracking-[0.2em] font-bold text-gray-300">Legacy Paradigm</div>
-              <div className="md:col-span-5 p-5 md:p-6 font-sans text-[10px] uppercase tracking-[0.2em] font-bold text-white flex items-center gap-2 relative overflow-hidden group/header cursor-default">
-                <div className="absolute inset-0 bg-hm-red/20 translate-y-full group-hover/header:translate-y-0 transition-transform duration-500 ease-out"></div>
-                <div className="w-1.5 h-1.5 rounded-full bg-hm-red animate-pulse relative z-10"></div> 
-                <span className="relative z-10">The Strategy Engine</span>
+            <div className="w-full overflow-x-auto">
+              <div className="min-w-[800px] flex flex-col">
+                {/* Table Header */}
+                <div className="grid grid-cols-12 bg-hm-black relative z-10 shadow-md">
+                  <div className="col-span-3 p-5 md:p-6 border-r border-zinc-800 font-sans text-[10px] uppercase tracking-[0.2em] font-bold text-gray-300">Feature Vector</div>
+                  <div className="col-span-4 p-5 md:p-6 border-r border-zinc-800 font-sans text-[10px] uppercase tracking-[0.2em] font-bold text-gray-300">Legacy Paradigm</div>
+                  <div className="col-span-5 p-5 md:p-6 font-sans text-[10px] uppercase tracking-[0.2em] font-bold text-white flex items-center gap-2 relative overflow-hidden group/header cursor-default">
+                    <div className="absolute inset-0 bg-hm-red/20 translate-y-full group-hover/header:translate-y-0 transition-transform duration-500 ease-out"></div>
+                    <div className="w-1.5 h-1.5 rounded-full bg-hm-red animate-pulse relative z-10"></div> 
+                    <span className="relative z-10">The Strategy Engine</span>
+                  </div>
+                </div>
+
+                {STRATEGIC_ROWS.map((row) => (
+                  <StrategicRow
+                    key={row.id}
+                    row={row}
+                    isActive={activeRow === row.id}
+                    onActivate={handleRowActivate}
+                    onDeactivate={handleRowDeactivate}
+                  />
+                ))}
               </div>
             </div>
-
-            {STRATEGIC_ROWS.map((row) => (
-              <StrategicRow
-                key={row.id}
-                row={row}
-                isActive={activeRow === row.id}
-                onActivate={handleRowActivate}
-                onDeactivate={handleRowDeactivate}
-              />
-            ))}
 
           </motion.div>
         </div>
