@@ -15,6 +15,7 @@ import traceback
 import re
 from google import genai
 from google.cloud import storage
+from google.genai.errors import ClientError
 
 from app.services import conductor
 from app.database import lakehouse
@@ -251,6 +252,9 @@ async def get_chat_response(request: ChatRequest):
         history_summary = summarize_history(history_payload)
         stage_guidance = build_stage_guidance(history_summary)
         formatted_history = format_history_for_prompt(history_payload)
+        def rate_limit_payload(exc):
+            limit_msg = f"Gemini rate limit reached ({exc}). Please try again later."
+            return f"data: {json.dumps({'type': 'text', 'payload': limit_msg})}\n\n"
 
         def build_crm_prompt(clean_data):
             return (
@@ -308,21 +312,36 @@ async def get_chat_response(request: ChatRequest):
                             clean_data = jsonable_encoder(crm_data)
                             yield f"data: {json.dumps({'type': 'data', 'payload': clean_data})}\n\n"
                             await asyncio.sleep(0.05)
-                            async for text_chunk in stream_response(build_crm_prompt(clean_data)):
-                                yield text_chunk
+                            try:
+                                async for text_chunk in stream_response(build_crm_prompt(clean_data)):
+                                    yield text_chunk
+                            except ClientError as ce:
+                                yield rate_limit_payload(ce)
                             return
                         else:
-                            async for text_chunk in stream_response(build_invalid_prompt(extracted_id)):
-                                yield text_chunk
+                            try:
+                                async for text_chunk in stream_response(build_invalid_prompt(extracted_id)):
+                                    yield text_chunk
+                            except ClientError as ce:
+                                yield rate_limit_payload(ce)
                             return
                 except Exception as e:
                     print(f"Error processing CRM data: {e}")
-                    async for text_chunk in stream_response(build_invalid_prompt(extracted_id)):
-                        yield text_chunk
+                    try:
+                        async for text_chunk in stream_response(build_invalid_prompt(extracted_id)):
+                            yield text_chunk
+                    except ClientError as ce:
+                        yield rate_limit_payload(ce)
                     return
 
-            async for text_chunk in stream_response(build_general_prompt(request.message)):
-                yield text_chunk
+            try:
+                async for text_chunk in stream_response(build_general_prompt(request.message)):
+                    yield text_chunk
+            except ClientError as ce:
+                yield rate_limit_payload(ce)
+        except ClientError as global_ce:
+            err_msg = f"Backend Stream Error: {str(global_ce)}"
+            yield f"data: {json.dumps({'type': 'text', 'payload': err_msg})}\n\n"
         except Exception as global_e:
             err_msg = f"Backend Stream Error: {str(global_e)} | Trace: {traceback.format_exc()}"
             yield f"data: {json.dumps({'type': 'text', 'payload': err_msg})}\n\n"

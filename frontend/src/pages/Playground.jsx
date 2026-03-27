@@ -105,7 +105,9 @@ export default function Playground() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (input.trim() && !isLoading) {
-      await sendMessage(input);
+      const current = input;
+      setInput('');
+      await sendMessage(current);
     }
   };
 
@@ -122,6 +124,7 @@ export default function Playground() {
       console.error(error);
     } finally {
       setIsRandomLoading(false);
+      setInput('');
     }
   };
 
