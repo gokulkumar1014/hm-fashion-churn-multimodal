@@ -39,15 +39,22 @@ export function useChat() {
 
     // 1. Render User Message immediately
     const userMsg = { id: Date.now(), role: 'user', text: input, type: 'text' };
-    const updatedMessages = [...messages, userMsg];
+    const narrativeId = Date.now() + 1;
+    
+    // 2. Render initial thinking message using the actual narrativeId
+    const thinkingMsg = { id: narrativeId, role: 'ai', text: '', type: 'text', isThinking: true };
+    const updatedMessages = [...messages, userMsg, thinkingMsg];
+    
     setMessages(updatedMessages);
     setIsLoading(true);
 
-    let narrativeId = null;
-    const historySnapshot = updatedMessages.map(msg => ({
-      role: msg.role === 'ai' ? 'assistant' : msg.role,
-      content: msg.text ?? msg.data?.dossier?.customer_id ?? ''
-    }));
+    // Omit thinking from history sent to LLM
+    const historySnapshot = updatedMessages
+      .filter(msg => !msg.isThinking)
+      .map(msg => ({
+        role: msg.role === 'ai' ? 'assistant' : msg.role,
+        content: msg.text ?? msg.data?.dossier?.customer_id ?? ''
+      }));
 
     try {
       // 3. Request FastAPI Dream View pipeline
@@ -69,9 +76,8 @@ export function useChat() {
       
       let accumulatedText = "";
       let buffer = "";
-      let crmData = null;
 
-    while (true) {
+      while (true) {
         const { done, value } = await reader.read();
         if (done) break;
         
@@ -87,32 +93,34 @@ export function useChat() {
               const parsed = JSON.parse(eventStr.slice(6));
               
               if (parsed.type === 'data') {
-                crmData = parsed.payload;
-                setMessages(prev => [...prev, {
-                  id: Date.now(),
-                  role: 'ai',
-                  type: 'data',
-                  data: crmData
-                }]);
-              } else if (parsed.type === 'text') {
-                const snippet = parsed.payload?.trim();
-                if (!snippet) {
-                  accumulatedText += parsed.payload;
-                  continue;
+                if (parsed.payload) {
+                  setMessages(prev => {
+                    const narrativeIndex = prev.findIndex(m => m.id === narrativeId);
+                    if (narrativeIndex === -1) return prev;
+                    
+                    const dataMsg = {
+                      id: Date.now() + 2,
+                      role: 'ai',
+                      type: 'data',
+                      data: parsed.payload
+                    };
+                    
+                    const newArr = [...prev];
+                    // Insert the rich data cards *before* the streaming text narrative
+                    newArr.splice(narrativeIndex, 0, dataMsg);
+                    return newArr;
+                  });
                 }
-                accumulatedText += parsed.payload;
-                if (narrativeId === null) {
-                  narrativeId = Date.now() + 2;
-                  setMessages(prev => [...prev, {
-                    id: narrativeId,
-                    role: 'ai',
-                    text: accumulatedText,
-                    type: 'text'
-                  }]);
-                } else {
+              } else if (parsed.type === 'text') {
+                const snippet = parsed.payload;
+                if (snippet !== null && snippet !== undefined) {
+                  accumulatedText += snippet;
+                  
+                  // Update the exact same narrative bubble: toggle off thinking and inject text
                   setMessages(prev => prev.map(msg => msg.id === narrativeId ? {
                     ...msg,
-                    text: accumulatedText
+                    text: accumulatedText,
+                    isThinking: false
                   } : msg));
                 }
               }
@@ -125,12 +133,12 @@ export function useChat() {
       }
 
     } catch (error) {
-      setMessages(prev => [...prev, {
-        id: Date.now(),
-        role: 'ai',
+      setMessages(prev => prev.map(msg => msg.id === narrativeId ? {
+        ...msg,
         text: 'Error: Unable to locate Customer ID sequence. Please verify the Hex String or integer mapping and ensure localhost:8000 is active.',
+        isThinking: false,
         type: 'error'
-      }]);
+      } : msg));
     } finally {
       setIsLoading(false);
     }

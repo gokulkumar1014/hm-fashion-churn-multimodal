@@ -3,5 +3,7 @@
     "python.analysis.extraPaths": [
         "${workspaceFolder}/backend",
         "${workspaceFolder}/backend/venv/Lib/site-packages"
-    ]
+    ],
+    "pyre.enabled": false,
+    "python.analysis.typeCheckingMode": "off"
 }

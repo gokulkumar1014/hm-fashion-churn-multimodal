@@ -34,21 +34,23 @@ export default function AnalystResponse({
       className="flex flex-col gap-6 w-full"
     >
       {/* LLM Narrative Bubble */}
-      <motion.div variants={item} className="w-full">
-        <div className="px-6 py-5 font-sans text-sm leading-relaxed bg-white/70 backdrop-blur-md border border-gray-100 shadow-sm text-hm-black rounded-r-2xl rounded-bl-2xl">
-          <ReactMarkdown
-            components={{
-              p: ({node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
-              strong: ({node, ...props}) => <strong className="font-semibold text-hm-black" {...props} />,
-              ul: ({node, ...props}) => <ul className="list-disc pl-5 mb-2" {...props} />,
-              ol: ({node, ...props}) => <ol className="list-decimal pl-5 mb-2" {...props} />,
-              li: ({node, ...props}) => <li className="mb-1" {...props} />
-            }}
-          >
-            {narrative}
-          </ReactMarkdown>
-        </div>
-      </motion.div>
+      {narrative && (
+        <motion.div variants={item} className="w-full">
+          <div className="px-6 py-5 font-sans text-sm leading-relaxed bg-white/70 backdrop-blur-md border border-gray-100 shadow-sm text-hm-black rounded-r-2xl rounded-bl-2xl">
+            <ReactMarkdown
+              components={{
+                p: ({node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
+                strong: ({node, ...props}) => <strong className="font-semibold text-hm-black" {...props} />,
+                ul: ({node, ...props}) => <ul className="list-disc pl-5 mb-2" {...props} />,
+                ol: ({node, ...props}) => <ol className="list-decimal pl-5 mb-2" {...props} />,
+                li: ({node, ...props}) => <li className="mb-1" {...props} />
+              }}
+            >
+              {narrative}
+            </ReactMarkdown>
+          </div>
+        </motion.div>
+      )}
 
       {/* CRM Data Injection (Only appears if data exists) */}
       {data && (

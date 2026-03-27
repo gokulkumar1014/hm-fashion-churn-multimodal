@@ -1,3 +1,4 @@
+# pyre-ignore-all-errors
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -25,7 +26,9 @@ BASE_SYSTEM_INSTRUCTIONS = (
     "This is not official H&M software; it is a flex project where Gokul fused ML, DL, cloud, big data "
     "GCS data, and 31 million transactions for around 1.3 million customers into a single strategy engine. Stay confident, truthful, "
     "and protective of secret knowledge until it is earned. Be high-end, polished, and strategic. "
-    "Lifetime Value (LTV) is always expressed in USD ($); call that out clearly and never mention or convert it to another currency."
+    "Lifetime Value (LTV) is always expressed in USD ($); call that out clearly and never mention or convert it to another currency. "
+    "CRITICAL CONTEXT: The database transactions and article information span strictly from 2018-09-19 to 2020-09-21. "
+    "You must interpret 'recent activity' relative to this 2018-2020 timeframe, despite the current year being 2026."
 )
 
 SECRET_POSITIVE_TRIGGERS = {"yes", "sure", "tell me", "okay", "ok", "please", "yep", "yeah", "sounds good", "i want"}

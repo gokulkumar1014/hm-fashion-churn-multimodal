@@ -119,12 +119,12 @@ export default function Playground() {
       if (!response.ok) throw new Error('Unable to fetch random ID');
       const { random_id } = await response.json();
       setInput(random_id);
+      setInput('');
       await sendMessage(random_id);
     } catch (error) {
       console.error(error);
     } finally {
       setIsRandomLoading(false);
-      setInput('');
     }
   };
 
@@ -156,7 +156,7 @@ export default function Playground() {
                 <div className="flex flex-col gap-2">
                   <p className="text-[11px] uppercase tracking-[0.4em] text-hm-gray font-semibold">The 1.3M Identity Universe</p>
                   <h3 className="font-serif text-2xl text-hm-black">Data Discovery</h3>
-                  <p className="text-sm text-hm-gray mt-1">Access the full demographic spine supporting this engine.</p>
+                  <p className="text-sm text-hm-gray mt-1">Access the full demographic spine supporting this engine. The dataset historically spans from <strong>2018-09-19</strong> to <strong>2020-09-21</strong>.</p>
                 </div>
                 <div className="grid gap-3">
                   <a
@@ -181,7 +181,7 @@ export default function Playground() {
                   >
                     <p className="text-[11px] uppercase tracking-[0.4em] text-hm-gray font-semibold">Raw Source (Kaggle)</p>
                     <h4 className="font-serif text-xl text-hm-black mt-2">Kaggle Dataset</h4>
-                    <p className="text-sm text-hm-gray mt-1">Explore the complete customer tables powering the fusion workflows.</p>
+                    <p className="text-sm text-hm-gray mt-1">Explore the complete customer tables powering the fusion workflows. Contains transaction history (2018-2020).</p>
                     <div className="mt-4 flex items-center justify-between text-sm font-semibold text-hm-red">
                       <span>Download Source</span>
                       <ArrowRight size={16} />
