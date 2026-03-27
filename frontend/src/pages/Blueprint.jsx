@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion as Motion } from 'framer-motion';
 import {
   GitMerge,
@@ -19,6 +19,26 @@ const containerVariants = {
 const itemVariants = {
   hidden: { opacity: 0, y: 30 },
   show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } }
+};
+
+const HoverableCard = ({ className = '', hoverClassName = '', children, ...rest }) => {
+  const [isActive, setIsActive] = useState(false);
+  const handleActivate = () => setIsActive(true);
+  const handleDeactivate = () => setIsActive(false);
+  const combinedClassName = `${className} ${isActive ? hoverClassName : ''}`.trim();
+
+  return (
+    <div
+      {...rest}
+      className={combinedClassName}
+      onPointerEnter={handleActivate}
+      onPointerLeave={handleDeactivate}
+      onPointerDown={handleActivate}
+      onPointerUp={handleDeactivate}
+    >
+      {children}
+    </div>
+  );
 };
 
 export default function Blueprint() {
@@ -75,14 +95,17 @@ export default function Blueprint() {
               </div>
               <h2 className="text-3xl font-serif text-hm-black">The Convergence: Why This Project Exists</h2>
             </div>
-            <div className="relative overflow-hidden bg-gradient-to-br from-blue-100 via-blue-50 to-slate-50 border border-slate-200/60 rounded-2xl p-8 md:p-12 shadow-[0_18px_40px_-18px_rgba(59,130,246,0.28)] transition-transform duration-300 hover:-translate-y-1">
+            <HoverableCard
+              className="relative overflow-hidden bg-gradient-to-br from-blue-100 via-blue-50 to-slate-50 border border-slate-200/60 rounded-2xl p-8 md:p-12 shadow-[0_18px_40px_-18px_rgba(59,130,246,0.28)] transition-transform duration-300 hover:-translate-y-1"
+              hoverClassName="-translate-y-1 shadow-[0_18px_40px_-18px_rgba(59,130,246,0.28)]"
+            >
               <blockquote className="border-l-4 border-blue-500 pl-6 italic text-lg text-slate-900 mb-8 font-serif leading-relaxed">
                 "You can build the smartest AI model in the world, but without a clean interface and cloud-native integration, it stays invisible."
               </blockquote>
               <p className="text-slate-900 leading-relaxed text-[15px] md:text-base">
                 This project was born at the intersection of AI Research and Full-Stack Engineering. To solve the problem of customer churn at a 31-million-transaction scale, I realized that deep learning alone wasn't enough. It required a robust data backbone, a scalable cloud environment, and a bridge to the end-user.
               </p>
-            </div>
+            </HoverableCard>
           </Motion.section>
 
           {/* 02. The Scale of the Beast: The H&M Dataset */}
@@ -96,7 +119,10 @@ export default function Blueprint() {
               </div>
               <h2 className="text-3xl font-serif text-hm-black">The Scale of the Beast: The H&amp;M Dataset</h2>
             </div>
-            <div className="relative overflow-hidden bg-gradient-to-br from-violet-100 via-violet-50 to-indigo-50 border border-slate-200/60 rounded-2xl p-8 md:p-12 shadow-[0_18px_40px_-18px_rgba(91,33,182,0.28)] transition-transform duration-300 hover:-translate-y-1">
+            <HoverableCard
+              className="relative overflow-hidden bg-gradient-to-br from-violet-100 via-violet-50 to-indigo-50 border border-slate-200/60 rounded-2xl p-8 md:p-12 shadow-[0_18px_40px_-18px_rgba(91,33,182,0.28)] transition-transform duration-300 hover:-translate-y-1"
+              hoverClassName="-translate-y-1 shadow-[0_18px_40px_-18px_rgba(91,33,182,0.28)]"
+            >
               <p className="text-slate-800 leading-relaxed text-[15px] md:text-base mb-8 font-medium">
                 To build an engine capable of handling real-world retail complexity, I leaned on the{' '}
                 <a className="text-blue-600 underline" href="https://www.kaggle.com/competitions/h-and-m-personalized-fashion-recommendations/data" target="_blank" rel="noreferrer">
@@ -110,20 +136,21 @@ export default function Blueprint() {
                   { label: 'Customers', count: '1.3M+', desc: 'Demographic spine including club status and age for cohort intelligence.' },
                   { label: 'Images', count: '30GB', desc: 'Raw pixels capturing the visual essence of the H&M catalog.' }
                 ].map((item, idx) => (
-                  <div
+                  <HoverableCard
                     key={idx}
                     className="bg-gradient-to-br from-white via-slate-50 to-violet-50 border border-gray-200 rounded-xl p-7 group hover:-translate-y-1 hover:shadow-[0_18px_36px_-14px_rgba(15,23,42,0.3)] transition-all duration-300"
+                    hoverClassName="-translate-y-1 shadow-[0_18px_36px_-14px_rgba(15,23,42,0.3)]"
                   >
                     <div className="flex items-baseline gap-3 mb-3">
                       <h4 className="font-serif text-xl text-hm-black">{item.label}</h4>
                       <span className="font-mono text-xs font-bold text-purple-500 bg-purple-100/50 px-2 py-1 rounded">{item.count}</span>
                     </div>
                     <p className="text-sm text-slate-900 leading-relaxed font-light">{item.desc}</p>
-                  </div>
+                  </HoverableCard>
                 ))}
               </div>
 
-            </div>
+            </HoverableCard>
           </Motion.section>
 
           {/* Infrastructure & Tech Stack Moat */}
@@ -137,38 +164,50 @@ export default function Blueprint() {
               </div>
               <h2 className="text-3xl font-serif text-hm-black">Infrastructure &amp; The "Tech Stack" Moat</h2>
             </div>
-            <div className="relative overflow-hidden border border-slate-200/60 rounded-2xl p-8 md:p-12 shadow-[0_18px_40px_-18px_rgba(5,150,105,0.28)] space-y-6 transition-transform duration-300 hover:-translate-y-1">
+            <HoverableCard
+              className="relative overflow-hidden border border-slate-200/60 rounded-2xl p-8 md:p-12 shadow-[0_18px_40px_-18px_rgba(5,150,105,0.28)] space-y-6 transition-transform duration-300 hover:-translate-y-1"
+              hoverClassName="-translate-y-1 shadow-[0_18px_40px_-18px_rgba(5,150,105,0.28)]"
+            >
               <p className="text-slate-800 leading-relaxed text-[15px] md:text-base">
                 Handling 31 million records and 30GB of imagery requires an architecture that prioritizes memory efficiency and high-throughput I/O.
               </p>
               <div className="grid md:grid-cols-3 gap-4">
-                <div className="p-5 bg-gradient-to-br from-white via-teal-50 to-emerald-50 border border-teal-100 rounded-xl shadow-sm space-y-2 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_36px_-14px_rgba(13,148,136,0.3)]">
+                <HoverableCard
+                  className="p-5 bg-gradient-to-br from-white via-teal-50 to-emerald-50 border border-teal-100 rounded-xl shadow-sm space-y-2 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_36px_-14px_rgba(13,148,136,0.3)]"
+                  hoverClassName="-translate-y-1 shadow-[0_18px_36px_-14px_rgba(13,148,136,0.3)]"
+                >
                   <div className="flex items-center gap-2 text-teal-700 font-semibold text-sm uppercase tracking-wide">
                     <Server size={18} /> Compute Engine
                   </div>
                   <p className="text-slate-900 text-sm leading-relaxed">
                     <strong>Vertex AI Workbench (GCP)</strong>. <strong>n2-highmem-8 (64GB RAM)</strong> for heavy ETL/joins; pivot to <strong>g2-standard-16 (NVIDIA L4 GPU)</strong> for deep-learning inference.
                   </p>
-                </div>
-                <div className="p-5 bg-gradient-to-br from-white via-teal-50 to-emerald-50 border border-teal-100 rounded-xl shadow-sm space-y-2 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_36px_-14px_rgba(13,148,136,0.3)]">
+                </HoverableCard>
+                <HoverableCard
+                  className="p-5 bg-gradient-to-br from-white via-teal-50 to-emerald-50 border border-teal-100 rounded-xl shadow-sm space-y-2 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_36px_-14px_rgba(13,148,136,0.3)]"
+                  hoverClassName="-translate-y-1 shadow-[0_18px_36px_-14px_rgba(13,148,136,0.3)]"
+                >
                   <div className="flex items-center gap-2 text-teal-700 font-semibold text-sm uppercase tracking-wide">
                     <Activity size={18} /> Data Processing
                   </div>
                   <p className="text-slate-900 text-sm leading-relaxed">
                     <strong>Polars over pandas</strong>: <strong>Rust-based</strong>, multi-threaded execution delivering near-instant scans on multi-GB parquet without blowing RAM.
                   </p>
-                </div>
-                <div className="p-5 bg-gradient-to-br from-white via-teal-50 to-emerald-50 border border-teal-100 rounded-xl shadow-sm space-y-2 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_36px_-14px_rgba(13,148,136,0.3)]">
+                </HoverableCard>
+                <HoverableCard
+                  className="p-5 bg-gradient-to-br from-white via-teal-50 to-emerald-50 border border-teal-100 rounded-xl shadow-sm space-y-2 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_36px_-14px_rgba(13,148,136,0.3)]"
+                  hoverClassName="-translate-y-1 shadow-[0_18px_36px_-14px_rgba(13,148,136,0.3)]"
+                >
                   <div className="flex items-center gap-2 text-teal-700 font-semibold text-sm uppercase tracking-wide">
                     <Box size={18} /> Experiment Tracking
                   </div>
                   <p className="text-slate-900 text-sm leading-relaxed">
                     <strong>MLflow ledger</strong>: Every hyperparameter and loss curve logged for <strong>100% reproducibility</strong> and auditability.
                   </p>
+                </HoverableCard>
               </div>
-            </div>
-          </div>
-        </Motion.section>
+            </HoverableCard>
+          </Motion.section>
 
           {/* 03. TWO TOWER ARCHITECTURE */}
           <Motion.section variants={itemVariants} className="relative group">
@@ -254,7 +293,10 @@ export default function Blueprint() {
               </blockquote>
 
               <div className="grid md:grid-cols-2 gap-6 relative z-10">
-                <div className="rounded-2xl bg-white/90 border border-slate-100 p-6 space-y-4 shadow-[0_10px_25px_rgba(15,23,42,0.08)] hover:-translate-y-1 transition-transform duration-300">
+                <HoverableCard
+                  className="rounded-2xl bg-white/90 border border-slate-100 p-6 space-y-4 shadow-[0_10px_25px_rgba(15,23,42,0.08)] hover:-translate-y-1 transition-transform duration-300"
+                  hoverClassName="-translate-y-1 shadow-[0_10px_25px_rgba(15,23,42,0.08)]"
+                >
                   <h3 className="font-serif text-xl text-hm-black">The Style Centroid: The Predictive Anchor</h3>
                   <p className="text-sm text-slate-900 font-light">
                     <strong className="text-hm-black">Dimensional Compression:</strong> We replace the high-latency overhead of tracking 50+ individual item IDs with one high-fidelity 2,048-dimensional "Vibe" vector.
@@ -265,8 +307,11 @@ export default function Blueprint() {
                   <p className="text-sm text-slate-900 font-light">
                     <strong className="text-hm-black">Zero-Shot Discovery:</strong> By mapping brand-new arrivals into the same latent space, we can recommend items with zero sales history. Proximity to the customer’s centroid allows for instant, accurate discovery without prior interactions.
                   </p>
-                </div>
-                <div className="rounded-2xl bg-white/90 border border-slate-100 p-6 space-y-4 shadow-[0_10px_25px_rgba(15,23,42,0.08)] hover:-translate-y-1 transition-transform duration-300">
+                </HoverableCard>
+                <HoverableCard
+                  className="rounded-2xl bg-white/90 border border-slate-100 p-6 space-y-4 shadow-[0_10px_25px_rgba(15,23,42,0.08)] hover:-translate-y-1 transition-transform duration-300"
+                  hoverClassName="-translate-y-1 shadow-[0_10px_25px_rgba(15,23,42,0.08)]"
+                >
                   <h3 className="font-serif text-xl text-hm-black">The Index Bridge (Memory Optimization)</h3>
                   <p className="text-sm text-slate-900 font-light">
                     <strong className="text-hm-black">The Challenge:</strong> Joining 31.7M transactions with 2,048-dim vectors creates a 256 GB RAM explosion.
@@ -277,8 +322,11 @@ export default function Blueprint() {
                   <p className="text-sm text-slate-900 font-light">
                     <strong className="text-hm-black">The Result:</strong> Reduced memory footprint by 99.9%, allowing the calculation of 1.3M Customer Style Centroids in minutes on standard GCP hardware.
                   </p>
-                </div>
-                <div className="rounded-2xl bg-white border border-slate-100 p-6 space-y-4 shadow-[0_10px_25px_rgba(15,23,42,0.08)] hover:-translate-y-1 transition-transform duration-300">
+                </HoverableCard>
+                <HoverableCard
+                  className="rounded-2xl bg-white border border-slate-100 p-6 space-y-4 shadow-[0_10px_25px_rgba(15,23,42,0.08)] hover:-translate-y-1 transition-transform duration-300"
+                  hoverClassName="-translate-y-1 shadow-[0_10px_25px_rgba(15,23,42,0.08)]"
+                >
                   <h3 className="font-serif text-xl text-hm-black">Differential Learning (Preserving the Brain)</h3>
                   <p className="text-sm text-slate-900 font-light">
                     <strong className="text-hm-black">The Challenge:</strong> Fusing two pre-trained systems risks "Catastrophic Forgetting" where the new vision data overwrites the behavioral memory.
@@ -289,8 +337,11 @@ export default function Blueprint() {
                   <p className="text-sm text-slate-900 font-light">
                     <strong className="text-hm-black">The Result:</strong> The model maintained its 77% behavioral proficiency while rapidly adapting to new visual "Aesthetic Drift" signals.
                   </p>
-                </div>
-                <div className="rounded-2xl bg-white border border-slate-100 p-6 space-y-4 shadow-[0_10px_25px_rgba(15,23,42,0.08)] hover:-translate-y-1 transition-transform duration-300">
+                </HoverableCard>
+                <HoverableCard
+                  className="rounded-2xl bg-white border border-slate-100 p-6 space-y-4 shadow-[0_10px_25px_rgba(15,23,42,0.08)] hover:-translate-y-1 transition-transform duration-300"
+                  hoverClassName="-translate-y-1 shadow-[0_10px_25px_rgba(15,23,42,0.08)]"
+                >
                   <h3 className="font-serif text-xl text-hm-black">The Last Mile: Quantization & The Speed Edge</h3>
                   <p className="text-sm text-slate-900 font-light">
                     <strong className="text-hm-black">The Logic:</strong> Dynamic INT8 Quantization converted weights from FP32 to 8-bit integers and leveraged CPU-optimized kernels, shrinking the vision model 4x.
@@ -298,7 +349,7 @@ export default function Blueprint() {
                   <p className="text-sm text-slate-900 font-light">
                     <strong className="text-hm-black">The Result:</strong> Sub-200ms inference latency, making "Aesthetic Intelligence" feel instantaneous in production.
                   </p>
-                </div>
+                </HoverableCard>
               </div>
             </div>
           </div>
@@ -398,15 +449,16 @@ export default function Blueprint() {
                     desc: <><strong className="text-slate-900">Docker</strong> + <strong className="text-slate-900">GCP Cloud Run</strong>, containerized with internal VPC traffic for efficient egress.</>
                   }
                 ].map((item) => (
-                  <div
+                  <HoverableCard
                     key={item.label}
                     className="bg-white/80 border border-slate-200 rounded-xl p-6 shadow-[0_8px_20px_rgba(15,23,42,0.08)] hover:bg-white hover:border-cyan-300 transform hover:-translate-y-1 transition duration-300"
+                    hoverClassName="hover:bg-white hover:border-cyan-300 -translate-y-1"
                   >
                     <h4 className="text-cyan-500 font-mono text-xs uppercase tracking-widest mb-3 font-bold">{item.label}</h4>
                     <p className="text-sm text-slate-500 leading-relaxed font-light">
                       {item.desc}
                     </p>
-                  </div>
+                  </HoverableCard>
                 ))}
               </div>
             </div>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Database, Cloud, Activity, Linkedin, Globe } from 'lucide-react';
@@ -24,7 +24,98 @@ const scrollVariant = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
 };
 
+const STRATEGIC_ROWS = [
+  {
+    id: "data-input",
+    label: "Data Input",
+    legacy: "Single-source (CSV/SQL) ignoring visual context.",
+    highlight: "Multimodal Fusion",
+    description: "Fuses pixel-level article DNA with sequential transaction intent.",
+    delay: 0.1
+  },
+  {
+    id: "temporal-logic",
+    label: "Temporal Logic",
+    legacy: "Static snapshots; treats a user as a fixed profile.",
+    highlight: "Sequential Intelligence",
+    description: "Analyzes the \"velocity\" of engagement to catch churn before it happens.",
+    delay: 0.2
+  },
+  {
+    id: "style-perception",
+    label: "Style Perception",
+    legacy: "Manual \"Tags\" (e.g., \"Blue Shirt\") that ignore aesthetic shifts.",
+    highlight: "Style DNA & Drift",
+    description: "Calculates the mathematical distance between historical tastes and recent evolution.",
+    delay: 0.3
+  },
+  {
+    id: "business-action",
+    label: "Business Action",
+    legacy: "\"Spray and Pray\" discounts that erode margins for all users.",
+    highlight: "Unit Economics",
+    description: "Delivers surgical vouchers targeted only at Persuadables to maximize ROI.",
+    delay: 0.4
+  },
+  {
+    id: "execution-hub",
+    label: "Execution Hub",
+    legacy: "Local, batch-processed scripts with high latency.",
+    highlight: "Cloud-Native Inference",
+    description: "Asynchronous GCP architecture delivering 360 dossiers in milliseconds.",
+    delay: 0.5
+  }
+];
+
+const StrategicRow = ({ row, isActive, onActivate, onDeactivate }) => {
+  const bgClass = isActive ? "bg-white" : "bg-red-50/40";
+  const overlayOpacity = isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100";
+  const barScale = isActive ? "scale-y-100" : "scale-y-0 group-hover:scale-y-100";
+  const textColor = isActive ? "text-hm-red" : "text-hm-black";
+  const legacyDeco = `font-serif text-[15px] leading-relaxed ${isActive ? "text-gray-500 group-hover:decoration-gray-400" : "text-gray-500"}`;
+  const advantageTransform = isActive ? "translate-x-2" : "translate-x-0 group-hover:translate-x-2";
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -20 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ delay: row.delay, duration: 0.5 }}
+      className={`grid grid-cols-1 md:grid-cols-12 border-b border-red-100 hover:bg-white transition-all duration-500 group relative overflow-hidden ${bgClass}`}
+      onPointerEnter={() => onActivate(row.id)}
+      onPointerMove={() => onActivate(row.id)}
+      onPointerDown={() => onActivate(row.id)}
+      onPointerUp={() => onDeactivate()}
+      onPointerLeave={() => onDeactivate()}
+    >
+      <div className={`absolute inset-0 bg-red-50 ${overlayOpacity} transition-opacity duration-500`}></div>
+      <div className={`absolute left-0 top-0 bottom-0 w-[4px] bg-hm-red transform origin-center z-10 transition-transform duration-500 ${barScale}`}></div>
+      <div className={`md:col-span-3 p-6 md:p-8 border-b md:border-b-0 md:border-r border-red-100 font-sans text-xs tracking-[0.1em] uppercase font-bold flex items-center transition-colors duration-500 relative z-10 ${textColor}`}>
+        {row.label}
+      </div>
+      <div className={`md:col-span-4 p-6 md:p-8 border-b md:border-b-0 md:border-r border-red-100 flex items-center relative z-10 bg-white/50 transition-colors duration-500 ${isActive ? "group-hover:bg-transparent" : ""}`}>
+        <p className={`${legacyDeco} line-through decoration-gray-300`}>
+          {row.legacy}
+        </p>
+      </div>
+      <div className={`md:col-span-5 p-6 md:p-8 transition-transform duration-500 flex items-center pl-6 md:pl-10 relative z-10 ${advantageTransform}`}>
+        <p className="font-sans text-[15px] text-gray-600 leading-relaxed font-light">
+          <strong className="text-hm-red tracking-[0.02em] block mb-1">{row.highlight}</strong> {row.description}
+        </p>
+      </div>
+    </motion.div>
+  );
+};
+
 export default function Hero() {
+  const [activeImage, setActiveImage] = useState(null);
+  const [activeRow, setActiveRow] = useState(null);
+  const [activeButton, setActiveButton] = useState(null);
+
+  const handleRowActivate = (id) => setActiveRow(id);
+  const handleRowDeactivate = () => setActiveRow(null);
+  const handleImageActivate = (index) => setActiveImage(index);
+  const handleImageDeactivate = () => setActiveImage(null);
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
       
@@ -51,11 +142,27 @@ export default function Hero() {
           </motion.p>
 
           <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 items-center justify-center mb-8">
-            <Link to="/playground" className="group px-8 py-3.5 border border-hm-black text-white bg-hm-black rounded-full font-sans text-xs tracking-[0.15em] uppercase font-semibold hover:bg-transparent hover:text-hm-black transition-all duration-500 flex items-center justify-center gap-2 hover:-translate-y-1 hover:shadow-xl">
+            <Link 
+              to="/playground" 
+              className={`group px-8 py-3.5 border border-hm-black text-white bg-hm-black rounded-full font-sans text-xs tracking-[0.15em] uppercase font-semibold transition-all duration-500 flex items-center justify-center gap-2 ${activeButton === 'launch' ? 'hover:bg-transparent hover:text-hm-black -translate-y-1 shadow-xl' : 'hover:bg-transparent hover:text-hm-black hover:-translate-y-1 hover:shadow-xl'}`}
+              onPointerEnter={() => setActiveButton('launch')}
+              onPointerMove={() => setActiveButton('launch')}
+              onPointerDown={() => setActiveButton('launch')}
+              onPointerLeave={() => setActiveButton(null)}
+              onPointerUp={() => setActiveButton(null)}
+            >
               Launch Engine
               <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
             </Link>
-            <Link to="/blueprint" className="px-8 py-3.5 border border-gray-300 text-gray-500 bg-transparent rounded-full font-sans text-xs tracking-[0.15em] uppercase font-semibold hover:border-hm-black hover:text-hm-black transition-all duration-500 flex items-center justify-center hover:-translate-y-1 hover:shadow-xl bg-white/50 backdrop-blur">
+            <Link 
+              to="/blueprint" 
+              className={`px-8 py-3.5 border border-gray-300 text-gray-500 bg-transparent rounded-full font-sans text-xs tracking-[0.15em] uppercase font-semibold transition-all duration-500 flex items-center justify-center bg-white/50 backdrop-blur ${activeButton === 'blueprint' ? 'hover:border-hm-black hover:text-hm-black -translate-y-1 shadow-xl' : 'hover:border-hm-black hover:text-hm-black hover:-translate-y-1 hover:shadow-xl'}`}
+              onPointerEnter={() => setActiveButton('blueprint')}
+              onPointerMove={() => setActiveButton('blueprint')}
+              onPointerDown={() => setActiveButton('blueprint')}
+              onPointerLeave={() => setActiveButton(null)}
+              onPointerUp={() => setActiveButton(null)}
+            >
               View Blueprint
             </Link>
           </motion.div>
@@ -66,16 +173,52 @@ export default function Hero() {
           initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.6 }}
           className="w-full max-w-6xl mx-auto grid grid-cols-3 gap-4 md:gap-8 relative z-20 pb-20 pt-16"
         >
-          <motion.div animate={{ y: [0, -12, 0] }} transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}>
-            <img src={IMAGES[0]} alt="High Fashion Sequential" className="w-full h-48 md:h-[400px] object-cover rounded-sm shadow-xl transition-all duration-500 hover:grayscale hover:shadow-2xl cursor-pointer" />
+          <motion.div
+            animate={{ y: [0, -12, 0] }}
+            transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+            onPointerEnter={() => handleImageActivate(0)}
+            onPointerMove={() => handleImageActivate(0)}
+            onPointerDown={() => handleImageActivate(0)}
+            onPointerUp={handleImageDeactivate}
+            onPointerLeave={handleImageDeactivate}
+          >
+            <img
+              src={IMAGES[0]}
+              alt="High Fashion Sequential"
+              className={`w-full h-48 md:h-[400px] object-cover rounded-sm shadow-xl transition-all duration-500 hover:grayscale hover:shadow-2xl cursor-pointer ${activeImage === 0 ? 'grayscale' : ''}`}
+            />
           </motion.div>
 
-          <motion.div animate={{ y: [0, -18, 0] }} transition={{ repeat: Infinity, duration: 8, ease: "easeInOut", delay: 1 }}>
-            <img src={IMAGES[1]} alt="High Fashion Multimodal" className="w-full h-64 md:h-[500px] object-cover rounded-sm shadow-2xl -mt-8 md:-mt-16 border border-gray-100 transition-all duration-500 hover:shadow-3xl cursor-pointer" />
+          <motion.div
+            animate={{ y: [0, -18, 0] }}
+            transition={{ repeat: Infinity, duration: 8, ease: "easeInOut", delay: 1 }}
+            onPointerEnter={() => handleImageActivate(1)}
+            onPointerMove={() => handleImageActivate(1)}
+            onPointerDown={() => handleImageActivate(1)}
+            onPointerUp={handleImageDeactivate}
+            onPointerLeave={handleImageDeactivate}
+          >
+            <img
+              src={IMAGES[1]}
+              alt="High Fashion Multimodal"
+              className={`w-full h-64 md:h-[500px] object-cover rounded-sm shadow-2xl -mt-8 md:-mt-16 border border-gray-100 transition-all duration-500 hover:grayscale hover:shadow-3xl cursor-pointer ${activeImage === 1 ? 'grayscale' : ''}`}
+            />
           </motion.div>
 
-          <motion.div animate={{ y: [0, -15, 0] }} transition={{ repeat: Infinity, duration: 7, ease: "easeInOut", delay: 2 }}>
-            <img src={IMAGES[2]} alt="High Fashion Intelligence" className="w-full h-48 md:h-[400px] object-cover rounded-sm shadow-xl transition-all duration-500 hover:grayscale hover:shadow-2xl cursor-pointer" />
+          <motion.div
+            animate={{ y: [0, -15, 0] }}
+            transition={{ repeat: Infinity, duration: 7, ease: "easeInOut", delay: 2 }}
+            onPointerEnter={() => handleImageActivate(2)}
+            onPointerMove={() => handleImageActivate(2)}
+            onPointerDown={() => handleImageActivate(2)}
+            onPointerUp={handleImageDeactivate}
+            onPointerLeave={handleImageDeactivate}
+          >
+            <img
+              src={IMAGES[2]}
+              alt="High Fashion Intelligence"
+              className={`w-full h-48 md:h-[400px] object-cover rounded-sm shadow-xl transition-all duration-500 hover:grayscale hover:shadow-2xl cursor-pointer ${activeImage === 2 ? 'grayscale' : ''}`}
+            />
           </motion.div>
         </motion.div>
       </section>
@@ -145,101 +288,16 @@ export default function Hero() {
               </div>
             </div>
 
-            {/* Row 1 */}
-            <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ delay: 0.1, duration: 0.5 }} className="grid grid-cols-1 md:grid-cols-12 border-b border-red-100 hover:bg-white transition-all duration-500 group bg-red-50/40 relative overflow-hidden">
-              <div className="absolute inset-0 bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-hm-red transform scale-y-0 group-hover:scale-y-100 transition-transform duration-500 origin-center z-10"></div>
-              <div className="md:col-span-3 p-6 md:p-8 border-b md:border-b-0 md:border-r border-red-100 font-sans text-xs tracking-[0.1em] uppercase font-bold text-hm-black flex items-center group-hover:text-hm-red transition-colors relative z-10">
-                Data Input
-              </div>
-              <div className="md:col-span-4 p-6 md:p-8 border-b md:border-b-0 md:border-r border-red-100 flex items-center relative z-10 bg-white/50 group-hover:bg-transparent transition-colors duration-500">
-                <p className="font-serif text-[15px] text-gray-500 leading-relaxed line-through decoration-gray-300 group-hover:decoration-gray-400 transition-colors">
-                  Single-source (CSV/SQL) ignoring visual context.
-                </p>
-              </div>
-              <div className="md:col-span-5 p-6 md:p-8 transition-transform duration-500 flex items-center pl-6 md:pl-10 relative z-10 group-hover:translate-x-2">
-                <p className="font-sans text-[15px] text-gray-600 leading-relaxed font-light">
-                  <strong className="text-hm-red tracking-[0.02em] block mb-1">Multimodal Fusion</strong> Fuses pixel-level article DNA with sequential transaction intent.
-                </p>
-              </div>
-            </motion.div>
+            {STRATEGIC_ROWS.map((row) => (
+              <StrategicRow
+                key={row.id}
+                row={row}
+                isActive={activeRow === row.id}
+                onActivate={handleRowActivate}
+                onDeactivate={handleRowDeactivate}
+              />
+            ))}
 
-            {/* Row 2 */}
-            <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ delay: 0.2, duration: 0.5 }} className="grid grid-cols-1 md:grid-cols-12 border-b border-red-100 hover:bg-white transition-all duration-500 group bg-red-50/40 relative overflow-hidden">
-              <div className="absolute inset-0 bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-hm-red transform scale-y-0 group-hover:scale-y-100 transition-transform duration-500 origin-center z-10"></div>
-              <div className="md:col-span-3 p-6 md:p-8 border-b md:border-b-0 md:border-r border-red-100 font-sans text-xs tracking-[0.1em] uppercase font-bold text-hm-black flex items-center group-hover:text-hm-red transition-colors relative z-10">
-                Temporal Logic
-              </div>
-              <div className="md:col-span-4 p-6 md:p-8 border-b md:border-b-0 md:border-r border-red-100 flex items-center relative z-10 bg-white/50 group-hover:bg-transparent transition-colors duration-500">
-                <p className="font-serif text-[15px] text-gray-500 leading-relaxed line-through decoration-gray-300 group-hover:decoration-gray-400 transition-colors">
-                  Static snapshots; treats a user as a fixed profile.
-                </p>
-              </div>
-              <div className="md:col-span-5 p-6 md:p-8 transition-transform duration-500 flex items-center pl-6 md:pl-10 relative z-10 group-hover:translate-x-2">
-                <p className="font-sans text-[15px] text-gray-600 leading-relaxed font-light">
-                  <strong className="text-hm-red tracking-[0.02em] block mb-1">Sequential Intelligence</strong> Analyzes the "velocity" of engagement to catch churn before it happens.
-                </p>
-              </div>
-            </motion.div>
-
-            {/* Row 3 */}
-            <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ delay: 0.3, duration: 0.5 }} className="grid grid-cols-1 md:grid-cols-12 border-b border-red-100 hover:bg-white transition-all duration-500 group bg-red-50/40 relative overflow-hidden">
-              <div className="absolute inset-0 bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-hm-red transform scale-y-0 group-hover:scale-y-100 transition-transform duration-500 origin-center z-10"></div>
-              <div className="md:col-span-3 p-6 md:p-8 border-b md:border-b-0 md:border-r border-red-100 font-sans text-xs tracking-[0.1em] uppercase font-bold text-hm-black flex items-center group-hover:text-hm-red transition-colors relative z-10">
-                Style Perception
-              </div>
-              <div className="md:col-span-4 p-6 md:p-8 border-b md:border-b-0 md:border-r border-red-100 flex items-center relative z-10 bg-white/50 group-hover:bg-transparent transition-colors duration-500">
-                <p className="font-serif text-[15px] text-gray-500 leading-relaxed line-through decoration-gray-300 group-hover:decoration-gray-400 transition-colors">
-                  Manual "Tags" (e.g., "Blue Shirt") that ignore aesthetic shifts.
-                </p>
-              </div>
-              <div className="md:col-span-5 p-6 md:p-8 transition-transform duration-500 flex items-center pl-6 md:pl-10 relative z-10 group-hover:translate-x-2">
-                <p className="font-sans text-[15px] text-gray-600 leading-relaxed font-light">
-                  <strong className="text-hm-red tracking-[0.02em] block mb-1">Style DNA & Drift</strong> Calculates the mathematical distance between historical tastes and recent evolution.
-                </p>
-              </div>
-            </motion.div>
-
-            {/* Row 4 */}
-            <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ delay: 0.4, duration: 0.5 }} className="grid grid-cols-1 md:grid-cols-12 border-b border-red-100 hover:bg-white transition-all duration-500 group bg-red-50/40 relative overflow-hidden">
-              <div className="absolute inset-0 bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-hm-red transform scale-y-0 group-hover:scale-y-100 transition-transform duration-500 origin-center z-10"></div>
-              <div className="md:col-span-3 p-6 md:p-8 border-b md:border-b-0 md:border-r border-red-100 font-sans text-xs tracking-[0.1em] uppercase font-bold text-hm-black flex items-center group-hover:text-hm-red transition-colors relative z-10">
-                Business Action
-              </div>
-              <div className="md:col-span-4 p-6 md:p-8 border-b md:border-b-0 md:border-r border-red-100 flex items-center relative z-10 bg-white/50 group-hover:bg-transparent transition-colors duration-500">
-                <p className="font-serif text-[15px] text-gray-500 leading-relaxed line-through decoration-gray-300 group-hover:decoration-gray-400 transition-colors">
-                  "Spray and Pray" discounts that erode margins for all users.
-                </p>
-              </div>
-              <div className="md:col-span-5 p-6 md:p-8 transition-transform duration-500 flex items-center pl-6 md:pl-10 relative z-10 group-hover:translate-x-2">
-                <p className="font-sans text-[15px] text-gray-600 leading-relaxed font-light">
-                  <strong className="text-hm-red tracking-[0.02em] block mb-1">Unit Economics</strong> Surgical vouchers targeted only at "Persuadables" to maximize ROI and Uplift.
-                </p>
-              </div>
-            </motion.div>
-
-            {/* Row 5 */}
-            <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ delay: 0.5, duration: 0.5 }} className="grid grid-cols-1 md:grid-cols-12 hover:bg-white transition-all duration-500 group bg-red-50/40 relative overflow-hidden">
-              <div className="absolute inset-0 bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-hm-red transform scale-y-0 group-hover:scale-y-100 transition-transform duration-500 origin-center z-10"></div>
-              <div className="md:col-span-3 p-6 md:p-8 border-b md:border-b-0 md:border-r border-red-100 font-sans text-xs tracking-[0.1em] uppercase font-bold text-hm-black flex items-center group-hover:text-hm-red transition-colors relative z-10">
-                Execution Hub
-              </div>
-              <div className="md:col-span-4 p-6 md:p-8 border-b md:border-b-0 md:border-r border-red-100 flex items-center relative z-10 bg-white/50 group-hover:bg-transparent transition-colors duration-500">
-                <p className="font-serif text-[15px] text-gray-500 leading-relaxed line-through decoration-gray-300 group-hover:decoration-gray-400 transition-colors">
-                  Local, batch-processed scripts with high latency.
-                </p>
-              </div>
-              <div className="md:col-span-5 p-6 md:p-8 transition-transform duration-500 flex items-center pl-6 md:pl-10 relative z-10 group-hover:translate-x-2">
-                <p className="font-sans text-[15px] text-gray-600 leading-relaxed font-light">
-                  <strong className="text-hm-red tracking-[0.02em] block mb-1">Cloud-Native Inference</strong> Asynchronous GCP architecture delivering 360 dossiers in milliseconds.
-                </p>
-              </div>
-            </motion.div>
-            
           </motion.div>
         </div>
       </section>

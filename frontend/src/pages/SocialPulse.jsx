@@ -29,6 +29,12 @@ export default function SocialPulse() {
   const [stats, setStats] = useState(null);
   const [chatResponse, setChatResponse] = useState("");
   const [isTyping, setIsTyping] = useState(true);
+  const [activePersonaId, setActivePersonaId] = useState(null);
+
+  const handlePersonaPointerEnter = (id) => setActivePersonaId(id);
+  const handlePersonaPointerLeave = () => setActivePersonaId(null);
+  const handlePersonaPointerDown = (id) => setActivePersonaId(id);
+  const handlePersonaPointerUp = () => setActivePersonaId(null);
 
   useEffect(() => {
     // 1. Fetch Global Aggregate Stats
@@ -282,57 +288,75 @@ export default function SocialPulse() {
             animate="show"
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4"
           >
-            {PERSONA_DATA.map((persona) => (
-              <motion.div 
-                key={persona.id} 
-                variants={cardVariants}
-                className="group relative bg-white border border-gray-200 overflow-hidden h-72 cursor-pointer shadow-sm hover:shadow-xl hover:border-gray-300 transition-all duration-500"
-              >
-                {/* Background Image Layer */}
-                <div className="absolute inset-0 z-0">
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10 z-10 transition-opacity duration-300 group-hover:opacity-60"></div>
-                  <img src={persona.img} alt={persona.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                </div>
+            {PERSONA_DATA.map((persona) => {
+              const isActive = activePersonaId === persona.id;
+              const defaultStateClasses = [
+                "absolute inset-0 z-20 p-5 flex flex-col justify-between transition-opacity duration-300",
+                isActive ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto",
+                "group-hover:opacity-0 group-hover:pointer-events-none"
+              ].join(" ");
+              const hoverStateClasses = [
+                "absolute inset-0 z-30 p-5 bg-white transition-all duration-300 flex flex-col",
+                isActive ? "opacity-100 pointer-events-auto scale-100" : "opacity-0 pointer-events-none scale-[1.05]",
+                "group-hover:opacity-100 group-hover:pointer-events-auto group-hover:scale-100"
+              ].join(" ");
 
-                {/* Default State Content */}
-                <div className="absolute inset-0 z-20 p-5 flex flex-col justify-between group-hover:opacity-0 transition-opacity duration-300">
-                  <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-mono text-white/70 bg-black/40 px-2 py-1 rounded backdrop-blur">PROFILE: {persona.id}</span>
-                    <div className="relative flex items-center justify-center w-5 h-5">
-                      {persona.risk === 'low' ? (
-                        <div className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.6)]"></div>
-                      ) : persona.risk === 'moderate' ? (
-                        <div className="w-2.5 h-2.5 rounded-full bg-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.6)]"></div>
-                      ) : (
-                        <div className="w-2.5 h-2.5 rounded-full bg-hm-red shadow-[0_0_10px_rgba(255,0,0,0.6)] animate-pulse"></div>
-                      )}
+              return (
+                <motion.div 
+                  key={persona.id} 
+                  variants={cardVariants}
+                  className="group relative bg-white border border-gray-200 overflow-hidden h-72 cursor-pointer shadow-sm hover:shadow-xl hover:border-gray-300 transition-all duration-500"
+                  onPointerEnter={() => handlePersonaPointerEnter(persona.id)}
+                  onPointerLeave={handlePersonaPointerLeave}
+                  onPointerDown={() => handlePersonaPointerDown(persona.id)}
+                  onPointerUp={handlePersonaPointerUp}
+                >
+                  {/* Background Image Layer */}
+                  <div className="absolute inset-0 z-0">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10 z-10 transition-opacity duration-300 group-hover:opacity-60"></div>
+                    <img src={persona.img} alt={persona.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                  </div>
+
+                  {/* Default State Content */}
+                  <div className={defaultStateClasses}>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[10px] font-mono text-white/70 bg-black/40 px-2 py-1 rounded backdrop-blur">PROFILE: {persona.id}</span>
+                      <div className="relative flex items-center justify-center w-5 h-5">
+                        {persona.risk === 'low' ? (
+                          <div className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.6)]"></div>
+                        ) : persona.risk === 'moderate' ? (
+                          <div className="w-2.5 h-2.5 rounded-full bg-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.6)]"></div>
+                        ) : (
+                          <div className="w-2.5 h-2.5 rounded-full bg-hm-red shadow-[0_0_10px_rgba(255,0,0,0.6)] animate-pulse"></div>
+                        )}
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className="font-serif text-lg text-white font-medium leading-tight">{persona.name}</h4>
                     </div>
                   </div>
-                  <div>
-                    <h4 className="font-serif text-lg text-white font-medium leading-tight">{persona.name}</h4>
-                  </div>
-                </div>
 
-                {/* Hover Reveal State (Top 3 Articles) */}
-                <div className="absolute inset-0 z-30 p-5 bg-white opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-4 group-hover:translate-y-0 flex flex-col">
-                  <div className="mb-4">
-                    <h4 className="font-serif text-md text-hm-black font-medium leading-tight">{persona.name}</h4>
-                    <p className="text-[10px] font-sans text-gray-500 uppercase tracking-wider mt-1">Drift: {persona.drift}</p>
+                  {/* Hover Reveal State (Top 3 Articles) */}
+                  <div className={hoverStateClasses}>
+                    <div className="mb-4">
+                      <h4 className="font-serif text-md text-hm-black font-medium leading-tight">{persona.name}</h4>
+                      <p className="text-[10px] font-sans text-gray-500 uppercase tracking-wider mt-1">Drift: {persona.drift}</p>
+                    </div>
+                    
+                    <div className="flex-1">
+                      <p className="text-[9px] font-sans text-hm-red uppercase tracking-[0.1em] font-bold mb-3 border-b border-gray-100 pb-1">Top Articles</p>
+                      <ul className="space-y-3">
+                        {persona.items.map((item, idx) => (
+                          <li key={idx} className="text-[11px] font-sans text-gray-600 leading-tight flex gap-2">
+                            <span className="text-gray-300 font-mono">0{idx+1}</span> {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
-                  
-                  <div className="flex-1">
-                    <p className="text-[9px] font-sans text-hm-red uppercase tracking-[0.1em] font-bold mb-3 border-b border-gray-100 pb-1">Top Articles</p>
-                    <ul className="space-y-3">
-                      {persona.items.map((item, idx) => (
-                        <li key={idx} className="text-[11px] font-sans text-gray-600 leading-tight flex gap-2">
-                          <span className="text-gray-300 font-mono">0{idx+1}</span> {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </motion.div>
         </div>
 
