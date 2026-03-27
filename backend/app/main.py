@@ -179,14 +179,22 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+FRONTEND_URL = os.environ.get("FRONTEND_URL", "")
+
+ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:5174",
+    "http://localhost:5175",
+]
+
+# Robustly inject Vercel Production Domain if specified
+if FRONTEND_URL:
+    ALLOWED_ORIGINS.extend([url.strip() for url in FRONTEND_URL.split(",") if url.strip()])
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://localhost:5174",
-        "http://localhost:5175",
-    ],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
