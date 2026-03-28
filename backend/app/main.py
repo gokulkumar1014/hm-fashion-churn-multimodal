@@ -153,18 +153,10 @@ class ChatResponse(BaseModel):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
-    On startup, execute a complete 'Cold Start' dummy request.
-    This forces Polars to cache remote GCS schema metadata and forces ONNX
-    to allocate its memory graphs before any user ever hits the endpoint.
+    On startup, initialized cleanly so the Cloud Run Health Check instantly 
+    validates the 8080 port and deploys instantly.
     """
     print("🚀 Initializing FastAPI Gateway...")
-    print("⏳ Executing Cold Start Sequence (Polars GCS & ONNX allocations) - this will take ~60s...")
-    
-    # Run in threadpool to avoid blocking main event loop
-    dummy_hex = "00007e8d4e54114b5b2a9b51586325a8d0fa74ea23ef77334eaec4ffccd7ebcc"
-    await asyncio.to_thread(conductor.get_customer_360, dummy_hex)
-    
-    print("✅ Cold Start complete! Server is Hot.")
     yield
     print("🛑 Shutting down.")
 
