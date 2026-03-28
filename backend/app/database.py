@@ -52,7 +52,13 @@ class HMLakehouse:
         }
 
         onnx_model_path = assets_dir / "visionary_champion_quantized.onnx"
-        self.visionary_champion = ort.InferenceSession(str(onnx_model_path))
+        
+        # 🚨 PROD FIX: Constrain ONNX threads so it doesn't suffocate Cloud Run's CPU
+        options = ort.SessionOptions()
+        options.intra_op_num_threads = 1
+        options.inter_op_num_threads = 1
+        
+        self.visionary_champion = ort.InferenceSession(str(onnx_model_path), options)
         self.global_pulse_stats = self._compute_global_pulse()
 
     def _fetch_dicts(
@@ -98,7 +104,9 @@ class HMLakehouse:
             df = df.sort(order_by, descending=descending)
         if limit:
             df = df.limit(limit)
-        collected = df.collect()
+            
+        # 🚨 MASSIVE PROD FIX: Enforce streaming to prevent 503 Out-of-Memory crashes
+        collected = df.collect(streaming=True)
         return collected.to_dicts()
 
     def _compute_global_pulse(self) -> dict:
