@@ -182,7 +182,7 @@ ALLOWED_ORIGINS = [
 
 # Robustly inject Vercel Production Domain if specified
 if FRONTEND_URL:
-    ALLOWED_ORIGINS.extend([url.strip() for url in FRONTEND_URL.split(",") if url.strip()])
+    ALLOWED_ORIGINS.extend([url.strip().rstrip('/') for url in FRONTEND_URL.split(",") if url.strip()])
 
 app.add_middleware(
     CORSMiddleware,
