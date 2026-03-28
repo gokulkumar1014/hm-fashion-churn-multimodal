@@ -1,7 +1,6 @@
 # Retention-Sync: Multi-Modal Churn and Recommendation Intelligence at Scale
 
-**🔴 [Live Demo (Vercel)](https://your-hm-project.vercel.app/)**  
-*(Replace this link with your final Vercel domain once deployed)*
+**🔴 [Live Demo (Vercel)](https://gokul-hm-intelligence.vercel.app/)**  
 
 ![H&M Banner](https://upload.wikimedia.org/wikipedia/commons/5/53/H%26M-Logo.svg)
 
