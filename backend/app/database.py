@@ -99,7 +99,7 @@ class HMLakehouse:
         if limit:
             df = df.limit(limit)
         collected = df.collect()
-        return [row.to_dict() for row in collected.iter_rows(named=True)]
+        return collected.to_dicts()
 
     def _compute_global_pulse(self) -> dict:
         try:
