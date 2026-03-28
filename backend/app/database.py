@@ -39,6 +39,21 @@ class HMLakehouse:
         base_dir = Path(__file__).resolve().parent.parent
         assets_dir = base_dir / "assets"
         self.duckdb_conn = duckdb.connect(database=":memory:")
+        self.duckdb_conn.execute("SET extension_directory='/tmp/duckdb_extensions';")
+        try:
+            self.duckdb_conn.execute("INSTALL google_cloud;")
+            self.duckdb_conn.execute("LOAD google_cloud;")
+        except Exception as exc:
+            print(f"⚠️ Failed to install google_cloud extension: {exc}")
+        try:
+            self.duckdb_conn.execute("INSTALL httpfs;")
+            self.duckdb_conn.execute("LOAD httpfs;")
+        except Exception as exc:
+            print(f"⚠️ Failed to install httpfs extension: {exc}")
+        try:
+            self.duckdb_conn.execute("CREATE SECRET (TYPE GCS, PROVIDER 'gce');")
+        except Exception as exc:
+            print(f"⚠️ Failed to create GCS secret: {exc}")
         self.duckdb_conn.execute("INSTALL httpfs;")
         self.duckdb_conn.execute("LOAD httpfs;")
         self.duckdb_conn.execute("SET s3_region='us-central1';")
