@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional
 import duckdb
 import numpy as np
 import onnxruntime as ort
+import polars as pl
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -12,12 +13,6 @@ load_dotenv()
 
 class HMLakehouse:
     _instance = None
-
-    REMOTE_VIEWS = {
-        "style_profiles": "gs://gokul-hm-vault/customer_style_profiles_final.parquet",
-        "hm_style_encyclopedia": "gs://gokul-hm-vault/hm_style_encyclopedia.parquet",
-        "behavioral_sequences": "gs://gokul-hm-vault/behavioral_sequences.parquet",
-    }
 
     LOCAL_VIEWS = {
         "article_legend": "article_legend.parquet",
@@ -27,6 +22,12 @@ class HMLakehouse:
         "persona_best_sellers": "persona_best_sellers.parquet",
         "similarity_index": "similarity_index.parquet",
         "customer_id_bridge": "customer_id_bridge.parquet",
+    }
+
+    REMOTE_VIEWS = {
+        "style_profiles": "gs://gokul-hm-vault/customer_style_profiles_final.parquet",
+        "hm_style_encyclopedia": "gs://gokul-hm-vault/hm_style_encyclopedia.parquet",
+        "behavioral_sequences": "gs://gokul-hm-vault/behavioral_sequences.parquet",
     }
 
     def __new__(cls):
@@ -39,25 +40,6 @@ class HMLakehouse:
         base_dir = Path(__file__).resolve().parent.parent
         assets_dir = base_dir / "assets"
         self.duckdb_conn = duckdb.connect(database=":memory:")
-        self.duckdb_conn.execute("SET extension_directory='/tmp/duckdb_extensions';")
-        try:
-            self.duckdb_conn.execute("INSTALL google_cloud;")
-            self.duckdb_conn.execute("LOAD google_cloud;")
-        except Exception as exc:
-            print(f"⚠️ Failed to install google_cloud extension: {exc}")
-        try:
-            self.duckdb_conn.execute("INSTALL httpfs;")
-            self.duckdb_conn.execute("LOAD httpfs;")
-        except Exception as exc:
-            print(f"⚠️ Failed to install httpfs extension: {exc}")
-        try:
-            self.duckdb_conn.execute("CREATE SECRET (TYPE GCS, PROVIDER 'gce');")
-        except Exception as exc:
-            print(f"⚠️ Failed to create GCS secret: {exc}")
-        self.duckdb_conn.execute("INSTALL httpfs;")
-        self.duckdb_conn.execute("LOAD httpfs;")
-        self.duckdb_conn.execute("SET s3_region='us-central1';")
-        self.duckdb_conn.execute("CREATE SECRET (TYPE GCS, PROVIDER 'gce');")
 
         for view_name, filename in self.LOCAL_VIEWS.items():
             absolute_path = str((assets_dir / filename).resolve()).replace("\\", "/")
@@ -65,71 +47,100 @@ class HMLakehouse:
                 f"CREATE VIEW IF NOT EXISTS {view_name} AS SELECT * FROM read_parquet('{absolute_path}')"
             )
 
-        for view_name, uri in self.REMOTE_VIEWS.items():
-            self.duckdb_conn.execute(
-                f"CREATE VIEW IF NOT EXISTS {view_name} AS SELECT * FROM read_parquet('{uri}')"
-            )
+        self.remote_dfs = {
+            view: pl.scan_parquet(uri) for view, uri in self.REMOTE_VIEWS.items()
+        }
 
         onnx_model_path = assets_dir / "visionary_champion_quantized.onnx"
         self.visionary_champion = ort.InferenceSession(str(onnx_model_path))
         self.global_pulse_stats = self._compute_global_pulse()
 
-    def _fetch_dicts(self, query: str, params: Optional[List[Any]] = None) -> List[Dict[str, Any]]:
-        result = self.duckdb_conn.execute(query, params or [])
-        records = result.fetchall()
-        if not records:
-            return []
+    def _fetch_dicts(
+        self,
+        query: str,
+        params: Optional[List[Any]] = None,
+        table: Optional[str] = None,
+    ) -> List[Dict[str, Any]]:
+        if table in self.remote_dfs:
+            raise ValueError("Remote queries must use remote helpers with filters.")
+        params = params or []
+        result = self.duckdb_conn.execute(query, params)
         columns = [col[0] for col in result.description]
-        return [dict(zip(columns, row)) for row in records]
+        return [dict(zip(columns, row)) for row in result.fetchall()]
 
-    def _fetch_one(self, query: str, params: Optional[List[Any]] = None) -> Optional[Dict[str, Any]]:
-        rows = self._fetch_dicts(query, params)
+    def _fetch_one(
+        self,
+        query: str,
+        params: Optional[List[Any]] = None,
+        table: Optional[str] = None,
+    ) -> Optional[Dict[str, Any]]:
+        rows = self._fetch_dicts(query, params, table=table)
         return rows[0] if rows else None
+
+    def _fetch_remote(
+        self,
+        table: str,
+        filters: Optional[Dict[str, Any]] = None,
+        select: Optional[List[str]] = None,
+        order_by: Optional[str] = None,
+        descending: bool = True,
+        limit: Optional[int] = None,
+    ) -> List[Dict[str, Any]]:
+        df = self.remote_dfs.get(table)
+        if df is None:
+            return []
+        filters = filters or {}
+        for column, value in filters.items():
+            df = df.filter(pl.col(column) == value)
+        if select:
+            df = df.select(select)
+        if order_by:
+            df = df.sort(order_by, descending=descending)
+        if limit:
+            df = df.limit(limit)
+        collected = df.collect()
+        return [row.to_dict() for row in collected.iter_rows(named=True)]
 
     def _compute_global_pulse(self) -> dict:
         try:
-            history_sql = """
-                SELECT a.product_type_name, COUNT(*) AS cnt
-                FROM history_narrative h
-                JOIN article_legend a ON h.article_id = a.article_id
-                GROUP BY a.product_type_name
-                ORDER BY cnt DESC
-                LIMIT 3
-            """
-            velocity_rows = self._fetch_dicts(history_sql)
+            velocity_rows = self._fetch_dicts(
+                """
+                    SELECT a.product_type_name, COUNT(*) AS cnt
+                    FROM history_narrative h
+                    JOIN article_legend a ON h.article_id = a.article_id
+                    GROUP BY a.product_type_name
+                    ORDER BY cnt DESC
+                    LIMIT 3
+                """
+            )
             velocity_counts = [row["cnt"] for row in velocity_rows]
             ticker_category = velocity_rows[0]["product_type_name"] if velocity_rows else "Knitwear"
             formatted_velocity = "+0%"
-            if velocity_counts and len(velocity_counts) > 0:
+            if velocity_counts:
                 mean_count = sum(velocity_counts) / len(velocity_counts)
                 velocity_pct = round(((velocity_counts[0] / mean_count) - 1) * 100) if mean_count else 0
                 formatted_velocity = f"+{int(velocity_pct)}%"
 
-            persona_sql = """
-                SELECT style_persona, COUNT(*) AS cnt
-                FROM style_profiles
-                GROUP BY style_persona
-                ORDER BY cnt DESC
-                LIMIT 3
-            """
-            persona_rows = self._fetch_dicts(persona_sql)
+            style_df = (
+                self.remote_dfs["style_profiles"]
+                .group_by("style_persona")
+                .agg(pl.count().alias("cnt"))
+                .sort("cnt", descending=True)
+                .limit(3)
+                .collect()
+            )
             top_persona_data = [
                 {"id": int(row["style_persona"]), "count": int(row["cnt"])}
-                for row in persona_rows
+                for row in style_df.iter_rows(named=True)
             ] or [{"id": 0, "count": 0}]
 
             sampled_drift = 0.38
-
-            print("🚀 [Pulse Aggregator] Compiling 1.3M Global Strategy Vectors...")
             return {
                 "global_drift": sampled_drift,
                 "high_risk_percentage": float(f"{((408499 / 1362281) * 0.88 * 100):.1f}"),
                 "ticker_category": ticker_category,
                 "market_velocity_pct": formatted_velocity,
-                "market_velocity_data": [
-                    {"name": row["product_type_name"], "count": int(row["cnt"])}
-                    for row in velocity_rows
-                ] or [{"name": "Knitwear", "count": 0}],
+                "market_velocity_data": velocity_rows or [{"name": "Knitwear", "count": 0}],
                 "top_persona_data": top_persona_data,
             }
         except Exception as exc:
@@ -143,11 +154,17 @@ class HMLakehouse:
             }
 
     def hex_from_int(self, int_id: int) -> Optional[str]:
-        row = self._fetch_one("SELECT hex_id FROM customer_id_bridge WHERE int_id = ? LIMIT 1", [int_id])
+        row = self._fetch_one(
+            "SELECT hex_id FROM customer_id_bridge WHERE int_id = ? LIMIT 1",
+            [int_id],
+        )
         return row["hex_id"] if row else None
 
     def int_from_hex(self, hex_id: str) -> Optional[int]:
-        row = self._fetch_one("SELECT int_id FROM customer_id_bridge WHERE hex_id = ? LIMIT 1", [hex_id])
+        row = self._fetch_one(
+            "SELECT int_id FROM customer_id_bridge WHERE hex_id = ? LIMIT 1",
+            [hex_id],
+        )
         return int(row["int_id"]) if row else None
 
     @lru_cache(maxsize=1000)
@@ -156,41 +173,45 @@ class HMLakehouse:
         if not hex_id:
             return {"error": f"Customer int_id {int_id} not found in bridge."}
 
-        sql = """
-            SELECT
-                b.customer_id,
-                b.age,
-                b.club_member_status,
-                b.member_since,
-                b.last_purchase,
-                s.estimated_ltv,
-                s.total_purchases
-            FROM customer_bio b
-            LEFT JOIN customer_stats s ON b.customer_id = s.customer_id
-            WHERE b.customer_id = ?
-            LIMIT 1
-        """
-        row = self._fetch_one(sql, [hex_id])
+        row = self._fetch_one(
+            """
+                SELECT
+                    b.customer_id,
+                    b.age,
+                    b.club_member_status,
+                    b.member_since,
+                    b.last_purchase,
+                    s.estimated_ltv,
+                    s.total_purchases
+                FROM customer_bio b
+                LEFT JOIN customer_stats s ON b.customer_id = s.customer_id
+                WHERE b.customer_id = ?
+                LIMIT 1
+            """,
+            [hex_id],
+        )
         if not row:
             return {"error": f"Customer ID {hex_id} not found locally."}
 
-        dna_row = self._fetch_one(
-            "SELECT customer_style_dna, style_persona FROM style_profiles WHERE customer_id = ? LIMIT 1",
-            [int_id],
+        dna_row = self._fetch_remote(
+            "style_profiles",
+            filters={"customer_id": int_id},
+            select=["customer_style_dna", "style_persona"],
+            limit=1,
         )
         return {
             "customer_id": int_id,
             "hex_id": hex_id,
             "local_bio_stats": {
-                "customer_id": row.get("customer_id"),
-                "age": row.get("age"),
-                "club_member_status": row.get("club_member_status"),
-                "member_since": row.get("member_since"),
-                "last_purchase": row.get("last_purchase"),
+                "customer_id": row["customer_id"],
+                "age": row["age"],
+                "club_member_status": row["club_member_status"],
+                "member_since": row["member_since"],
+                "last_purchase": row["last_purchase"],
                 "estimated_ltv": float(row.get("estimated_ltv") or 0.0),
                 "total_purchases": int(row.get("total_purchases") or 0),
             },
-            "style_dna": dna_row or {},
+            "style_dna": dna_row[0] if dna_row else {},
         }
 
     @lru_cache(maxsize=1000)
@@ -199,22 +220,24 @@ class HMLakehouse:
         if not hex_id:
             return {"error": f"Customer int_id {int_id} not found in bridge."}
 
-        dna_row = self._fetch_one(
-            "SELECT customer_style_dna FROM style_profiles WHERE customer_id = ? LIMIT 1",
-            [int_id],
+        dna_rows = self._fetch_remote(
+            "style_profiles",
+            filters={"customer_id": int_id},
+            select=["customer_style_dna"],
+            limit=1,
         )
-        if not dna_row or not dna_row.get("customer_style_dna"):
+        if not dna_rows:
             return {"error": f"Customer ID {int_id} not found in remote style profiles."}
 
-        cust_vector = np.array(dna_row["customer_style_dna"])
+        cust_vector = np.array(dna_rows[0]["customer_style_dna"])
 
         history_rows = self._fetch_dicts(
             """
-            SELECT article_id
-            FROM history_narrative
-            WHERE customer_id = ?
-            ORDER BY t_dat DESC
-            LIMIT 3
+                SELECT article_id
+                FROM history_narrative
+                WHERE customer_id = ?
+                ORDER BY t_dat DESC
+                LIMIT 3
             """,
             [hex_id],
         )
@@ -224,12 +247,14 @@ class HMLakehouse:
         article_vectors = []
         article_ids = [int(row["article_id"]) for row in history_rows]
         for article_id in article_ids:
-            article_row = self._fetch_one(
-                "SELECT style_embeddings FROM hm_style_encyclopedia WHERE article_id = ? LIMIT 1",
-                [article_id],
+            article_rows = self._fetch_remote(
+                "hm_style_encyclopedia",
+                filters={"article_id": article_id},
+                select=["style_embeddings"],
+                limit=1,
             )
-            if article_row and article_row.get("style_embeddings"):
-                vec = np.array(article_row["style_embeddings"])
+            if article_rows and article_rows[0].get("style_embeddings"):
+                vec = np.array(article_rows[0]["style_embeddings"])
                 if vec.size:
                     article_vectors.append(vec)
 
@@ -265,25 +290,27 @@ class HMLakehouse:
         )
         if not history:
             return []
-        fav_article = history[0]["article_id"]
-        twins = self._fetch_one(
+        fav_article = int(history[0]["article_id"])
+        twins = self._fetch_dicts(
             "SELECT similar_items FROM similarity_index WHERE article_id = ? LIMIT 1",
             [fav_article],
         )
-        if not twins or "similar_items" not in twins:
+        if not twins or "similar_items" not in twins[0]:
             return []
-        return [int(x) for x in twins["similar_items"][:3]]
+        return [int(x) for x in twins[0]["similar_items"][:3]]
 
     def _get_persona_best_sellers(self, int_id: int) -> list:
-        persona_row = self._fetch_one(
-            "SELECT style_persona FROM style_profiles WHERE customer_id = ? LIMIT 1",
-            [int_id],
+        persona = self._fetch_remote(
+            "style_profiles",
+            filters={"customer_id": int_id},
+            select=["style_persona"],
+            limit=1,
         )
-        if not persona_row:
+        if not persona:
             return []
         best_sellers = self._fetch_dicts(
             "SELECT article_id FROM persona_best_sellers WHERE style_persona = ? LIMIT 3",
-            [persona_row["style_persona"]],
+            [persona[0]["style_persona"]],
         )
         return [int(row["article_id"]) for row in best_sellers]
 
@@ -291,13 +318,13 @@ class HMLakehouse:
         if not padded_articles:
             return []
         last_article = int(padded_articles[0])
-        twins_row = self._fetch_one(
+        twins = self._fetch_dicts(
             "SELECT similar_items FROM similarity_index WHERE article_id = ? LIMIT 1",
             [last_article],
         )
-        if not twins_row or "similar_items" not in twins_row:
+        if not twins or "similar_items" not in twins[0]:
             return []
-        return [int(x) for x in twins_row["similar_items"][:3]]
+        return [int(x) for x in twins[0]["similar_items"][:3]]
 
 
 lakehouse = HMLakehouse()
