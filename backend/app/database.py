@@ -175,14 +175,13 @@ class HMLakehouse:
 
         row = self._fetch_one(
             """
-                SELECT
-                    b.customer_id,
-                    b.age,
-                    b.club_member_status,
-                    b.member_since,
-                    b.last_purchase,
-                    s.estimated_ltv,
-                    s.total_purchases
+            SELECT
+                b.customer_id,
+                b.age,
+                b.club_member_status,
+                b.last_purchase,
+                s.estimated_ltv,
+                s.total_purchases
                 FROM customer_bio b
                 LEFT JOIN customer_stats s ON b.customer_id = s.customer_id
                 WHERE b.customer_id = ?
@@ -206,7 +205,6 @@ class HMLakehouse:
                 "customer_id": row["customer_id"],
                 "age": row["age"],
                 "club_member_status": row["club_member_status"],
-                "member_since": row["member_since"],
                 "last_purchase": row["last_purchase"],
                 "estimated_ltv": float(row.get("estimated_ltv") or 0.0),
                 "total_purchases": int(row.get("total_purchases") or 0),
