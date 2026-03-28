@@ -47,30 +47,35 @@ class HMLakehouse:
                 f"CREATE VIEW IF NOT EXISTS {view_name} AS SELECT * FROM read_parquet('{absolute_path}')"
             )
 
-        # 🚨 PROD LATENCY CURE v2: Download natively to disk (/tmp) to prevent RAM blowout, then scan locally.
-        from google.cloud import storage
-        import os
-        try:
-            storage_client = storage.Client()
-            bucket = storage_client.bucket("gokul-hm-vault")
-        except Exception:
-            storage_client = None
+        # 🚨 PROD LATENCY CURE v3 (Absolute Polish): Boot instantly on network to pass Uvicorn 8080 checks, then securely multi-thread the disk acceleration 
+        self.remote_dfs = {
+            view: pl.scan_parquet(uri) for view, uri in self.REMOTE_VIEWS.items()
+        }
 
-        self.remote_dfs = {}
-        for view, uri in self.REMOTE_VIEWS.items():
-            blob_name = uri.split("gokul-hm-vault/")[-1]
-            tmp_path = f"/tmp/{blob_name}"
-            # Only download if it doesn't already exist locally
-            if not os.path.exists(tmp_path) and storage_client:
-                print(f"Downloading {blob_name} natively to ephemeral disk...")
-                blob = bucket.blob(blob_name)
-                blob.download_to_filename(tmp_path)
-            
-            # If download succeeded (or local laptop), scan the local file! If it failed, fallback to network.
-            if os.path.exists(tmp_path):
-                self.remote_dfs[view] = pl.scan_parquet(tmp_path)
-            else:
-                self.remote_dfs[view] = pl.scan_parquet(uri)
+        def _warm_ephemeral_nvme():
+            from google.cloud import storage
+            import os
+            try:
+                storage_client = storage.Client()
+                bucket = storage_client.bucket("gokul-hm-vault")
+                for view, uri in self.REMOTE_VIEWS.items():
+                    blob_name = uri.split("gokul-hm-vault/")[-1]
+                    tmp_path = f"/tmp/{blob_name}"
+                    
+                    if not os.path.exists(tmp_path):
+                        print(f"☁️ [Background Engine] Accelerating {blob_name} to disk...")
+                        blob = bucket.blob(blob_name)
+                        blob.download_to_filename(tmp_path + ".inflight")
+                        os.rename(tmp_path + ".inflight", tmp_path)  # Atomic disk swap
+                    
+                    # Gracefully hot-swap the Polars pipeline to the blazing fast local SSD
+                    self.remote_dfs[view] = pl.scan_parquet(tmp_path)
+                    print(f"⚡ [Engine Swapped] {view} is now streaming locally at NVMe speeds!")
+            except Exception as e:
+                print(f"⚠️ [Background Engine] Kept on network pipeline. Disk warming failed: {e}")
+
+        import threading
+        threading.Thread(target=_warm_ephemeral_nvme, daemon=True).start()
 
         onnx_model_path = assets_dir / "visionary_champion_quantized.onnx"
         
