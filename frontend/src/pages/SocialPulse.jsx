@@ -38,8 +38,10 @@ export default function SocialPulse() {
   const handlePersonaPointerUp = () => setActivePersonaId(null);
 
   useEffect(() => {
+    const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+    
     // 1. Fetch Global Aggregate Stats
-    fetch('http://localhost:8000/api/v1/social/pulse')
+    fetch(`${API_BASE}/api/v1/social/pulse`)
       .then(res => res.json())
       .then(data => setStats(data))
       .catch(err => console.error("Pulse Stats Error:", err));
@@ -49,7 +51,7 @@ export default function SocialPulse() {
       setIsTyping(true);
       setChatResponse("");
       try {
-        const res = await fetch('http://localhost:8000/api/v1/social/chat', {
+        const res = await fetch(`${API_BASE}/api/v1/social/chat`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ context: "Analyze the current global style drift and persona risk." })

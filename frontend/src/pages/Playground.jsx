@@ -55,7 +55,8 @@ const StrategyCard = ({ strategy }) => (
 );
 
 const getImageUrl = (article_id) => {
-  return `http://localhost:8000/api/v1/image/${article_id}`;
+  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+  return `${API_BASE}/api/v1/image/${article_id}`;
 };
 
 const ActivityFeed = ({ items, title }) => (
@@ -115,7 +116,8 @@ export default function Playground() {
     if (isLoading || isRandomLoading) return;
     setIsRandomLoading(true);
     try {
-      const response = await fetch('http://localhost:8000/api/v1/random-id');
+      const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${API_BASE}/api/v1/random-id`);
       if (!response.ok) throw new Error('Unable to fetch random ID');
       const { random_id } = await response.json();
       setInput(random_id);
