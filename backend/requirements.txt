@@ -7,3 +7,5 @@ python-dotenv
 gcsfs
 numpy
 tzdata
+google-genai
+pydantic
