@@ -35,7 +35,7 @@ SECRET_POSITIVE_TRIGGERS = {"yes", "sure", "tell me", "okay", "ok", "please", "y
 HEX_PATTERN = re.compile(r'\b[a-fA-F0-9]{64}\b')
 ASSISTANT_ROLES = {"assistant", "ai"}
 
-ROOT_DIR = Path(__file__).resolve().parents[2]
+ROOT_DIR = Path(__file__).resolve().parent.parent
 DEMO_IDS_PATH = ROOT_DIR / "assets" / "demo_ids.json"
 try:
     with open(DEMO_IDS_PATH, encoding="utf-8") as f:
