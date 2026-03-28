@@ -219,9 +219,9 @@ async def get_customer(customer_id: str):
     # Int64 vs Hex String Router
     if customer_id.isdigit():
         int_id_val = int(customer_id)
-        if int_id_val not in lakehouse.int_to_hex:
+        hex_target = lakehouse.hex_from_int(int_id_val)
+        if not hex_target:
             raise HTTPException(status_code=404, detail=f"Integer ID {customer_id} not mapped to any known H&M Customer.")
-        hex_target = lakehouse.int_to_hex[int_id_val]
     else:
         hex_target = customer_id
         
@@ -313,7 +313,7 @@ async def get_chat_response(request: ChatRequest):
                 try:
                     if clean_id.isdigit():
                         int_id_val = int(clean_id)
-                        hex_target = lakehouse.int_to_hex.get(int_id_val)
+                        hex_target = lakehouse.hex_from_int(int_id_val)
                     else:
                         hex_target = clean_id
 

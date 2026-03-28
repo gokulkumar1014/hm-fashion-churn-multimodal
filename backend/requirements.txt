@@ -9,3 +9,4 @@ numpy
 tzdata
 google-genai
 pydantic
+duckdb

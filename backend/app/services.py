@@ -13,7 +13,7 @@ class StrategyEngine:
         Returns the holistic Customer 360 'Dream View' Object.
         """
         # 1. Provide routing ID
-        int_id = self.db.hex_to_int.get(customer_id)
+        int_id = self.db.int_from_hex(customer_id)
         if int_id is None:
             return {"error": f"Customer {customer_id} not found."}
 

@@ -1,11 +1,13 @@
 import os
 from pathlib import Path
+from functools import lru_cache
+from typing import Optional
+
+import duckdb
+import numpy as np
 # pyre-ignore-all-errors
 import polars as pl
 import onnxruntime as ort
-import numpy as np
-from functools import lru_cache
-import sys
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -13,10 +15,8 @@ load_dotenv()
 class HMLakehouse:
     _instance = None
     
-    # Type hints to satisfy static type checkers (Pyre2/Pylance)
     article_legend: pl.DataFrame
     customer_bio: pl.DataFrame
-    customer_id_bridge: pl.DataFrame
     customer_stats: pl.DataFrame
     history_narrative: pl.DataFrame
     persona_best_sellers: pl.DataFrame
@@ -25,8 +25,7 @@ class HMLakehouse:
     style_profiles_df: pl.DataFrame
     encyclopedia_df: pl.DataFrame
     behavioral_sequences_df: pl.DataFrame
-    int_to_hex: dict
-    hex_to_int: dict
+    duckdb_conn: duckdb.DuckDBPyConnection
     global_pulse_stats: dict
 
     def __new__(cls):
@@ -41,7 +40,6 @@ class HMLakehouse:
         
         self.article_legend = pl.read_parquet(assets_dir / "article_legend.parquet")
         self.customer_bio = pl.read_parquet(assets_dir / "customer_bio.parquet")
-        self.customer_id_bridge = pl.read_parquet(assets_dir / "customer_id_bridge.parquet")
         self.customer_stats = pl.read_parquet(assets_dir / "customer_stats.parquet")
         self.history_narrative = pl.read_parquet(assets_dir / "history_narrative.parquet")
         self.persona_best_sellers = pl.read_parquet(assets_dir / "persona_best_sellers.parquet")
@@ -59,10 +57,12 @@ class HMLakehouse:
         behavioral_uri = "gs://gokul-hm-vault/behavioral_sequences.parquet"
         self.behavioral_sequences_df = pl.read_parquet(behavioral_uri)
         
-        # Build fast translation dict for ID lookups (Int64 <-> Hex String)
-        self.int_to_hex = dict(zip(self.customer_id_bridge["int_id"], self.customer_id_bridge["hex_id"]))
-        self.hex_to_int = dict(zip(self.customer_id_bridge["hex_id"], self.customer_id_bridge["int_id"]))
-        
+        self.duckdb_conn = duckdb.connect(database=":memory:")
+        bridge_path = str((assets_dir / "customer_id_bridge.parquet").resolve()).replace("\\", "/")
+        self.duckdb_conn.execute(
+            f"CREATE VIEW customer_id_bridge AS SELECT * FROM read_parquet('{bridge_path}')"
+        )
+
         self.global_pulse_stats = self._compute_global_pulse()
 
     def _compute_global_pulse(self) -> dict:
@@ -130,7 +130,7 @@ class HMLakehouse:
 
     @lru_cache(maxsize=1000)
     def get_customer_context(self, int_id: int) -> dict:
-        hex_id = self.int_to_hex.get(int_id)
+        hex_id = self.hex_from_int(int_id)
         if not hex_id:
             return {"error": f"Customer int_id {int_id} not found in bridge."}
 
@@ -157,7 +157,7 @@ class HMLakehouse:
 
     @lru_cache(maxsize=1000)
     def calculate_style_drift(self, int_id: int) -> dict:
-        hex_id = self.int_to_hex.get(int_id)
+        hex_id = self.hex_from_int(int_id)
         if not hex_id:
             return {"error": f"Customer int_id {int_id} not found in bridge."}
             
@@ -219,5 +219,15 @@ class HMLakehouse:
             "drift_score": drift_score,
             "recent_articles": last_3_articles
         }
+
+    def int_from_hex(self, hex_id: str) -> Optional[int]:
+        query = "SELECT int_id FROM customer_id_bridge WHERE hex_id = ? LIMIT 1"
+        row = self.duckdb_conn.execute(query, [hex_id]).fetchone()
+        return int(row[0]) if row else None
+
+    def hex_from_int(self, int_id: int) -> Optional[str]:
+        query = "SELECT hex_id FROM customer_id_bridge WHERE int_id = ? LIMIT 1"
+        row = self.duckdb_conn.execute(query, [int_id]).fetchone()
+        return row[0] if row else None
 
 lakehouse = HMLakehouse()
