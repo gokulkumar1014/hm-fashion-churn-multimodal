@@ -95,22 +95,10 @@ export function useChat() {
               
               if (parsed.type === 'data') {
                 if (parsed.payload) {
-                  setMessages(prev => {
-                    const narrativeIndex = prev.findIndex(m => m.id === narrativeId);
-                    if (narrativeIndex === -1) return prev;
-                    
-                    const dataMsg = {
-                      id: Date.now() + 2,
-                      role: 'ai',
-                      type: 'data',
-                      data: parsed.payload
-                    };
-                    
-                    const newArr = [...prev];
-                    // Insert the rich data cards *before* the streaming text narrative
-                    newArr.splice(narrativeIndex, 0, dataMsg);
-                    return newArr;
-                  });
+                  setMessages(prev => prev.map(msg => msg.id === narrativeId ? {
+                    ...msg,
+                    data: parsed.payload
+                  } : msg));
                 }
               } else if (parsed.type === 'text') {
                 const snippet = parsed.payload;

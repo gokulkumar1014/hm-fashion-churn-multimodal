@@ -259,40 +259,10 @@ export default function Playground() {
                         </div>
 
                         {/* Content Box */}
-                        <div className={`flex flex-col gap-4 max-w-[85%] w-full ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
-                          {/* Text Bubble */}
-                          {msg.type !== 'data' && (
-                            <div className={`px-5 sm:px-6 py-4 font-sans text-sm leading-relaxed rounded-2xl shadow-sm transition-all duration-300 break-words max-w-full ${msg.role === 'user' ? 'bg-gradient-to-br from-hm-black to-slate-900 text-white border border-hm-black shadow-[0_20px_40px_rgba(0,0,0,0.4)]' : 'bg-white/70 backdrop-blur-md border border-gray-100 text-hm-black'}`}>
-                              {msg.role === 'user' ? (
-                                <div className="break-all">{msg.text}</div>
-                              ) : (
-                                <div className="markdown-content max-w-full overflow-hidden break-words whitespace-pre-wrap">
-                                  <ReactMarkdown
-                                    components={{
-                                      p: ({node, ...props}) => <p className="mb-3 last:mb-0" {...props} />,
-                                      strong: ({node, ...props}) => <strong className="font-semibold text-hm-black" {...props} />,
-                                      ul: ({node, ...props}) => <ul className="list-disc pl-5 mb-3" {...props} />,
-                                      ol: ({node, ...props}) => <ol className="list-decimal pl-5 mb-3" {...props} />,
-                                      li: ({node, ...props}) => <li className="mb-1" {...props} />
-                                    }}
-                                  >
-                                    {msg.text}
-                                  </ReactMarkdown>
-                                </div>
-                              )}
-                              
-                              {msg.isThinking && (
-                                <span className="ml-2 inline-flex gap-1">
-                                  <span className="animate-bounce delay-100">.</span>
-                                  <span className="animate-bounce delay-200">.</span>
-                                  <span className="animate-bounce delay-300">.</span>
-                                </span>
-                              )}
-                            </div>
-                          )}
-
-                          {/* Rich Component Injection (Only for AI Data messages) */}
-                          {msg.type === 'data' && msg.data && (
+                        <div className={`flex flex-col gap-3 max-w-[90%] w-full ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                          
+                          {/* 1. Rich Component Injection (Data Cards) */}
+                          {msg.data && (
                             <AnalystResponse
                               narrative={msg.text}
                               data={msg.data}
@@ -301,6 +271,37 @@ export default function Playground() {
                               VisualTwinsFeed={ActivityFeed}
                               RecentHistoryFeed={ActivityFeed}
                             />
+                          )}
+
+                          {/* 2. Text Narrative Bubble */}
+                          {(msg.text !== undefined || msg.isThinking) && (
+                            <div className={`px-5 sm:px-6 py-4 font-sans text-sm leading-relaxed rounded-2xl shadow-sm transition-all duration-300 break-words max-w-full ${msg.role === 'user' ? 'bg-gradient-to-br from-hm-black to-slate-900 text-white border border-hm-black shadow-[0_20px_40px_rgba(0,0,0,0.4)]' : 'bg-white/70 backdrop-blur-md border border-gray-100 text-hm-black'}`}>
+                              {msg.role === 'user' ? (
+                                <div className="break-all">{msg.text}</div>
+                              ) : (
+                                <div className="markdown-content max-w-full overflow-hidden break-words whitespace-pre-wrap">
+                                  <ReactMarkdown
+                                    components={{
+                                      p: ({node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
+                                      strong: ({node, ...props}) => <strong className="font-semibold text-hm-black" {...props} />,
+                                      ul: ({node, ...props}) => <ul className="list-disc pl-5 mb-2" {...props} />,
+                                      ol: ({node, ...props}) => <ol className="list-decimal pl-5 mb-2" {...props} />,
+                                      li: ({node, ...props}) => <li className="mb-1" {...props} />
+                                    }}
+                                  >
+                                    {msg.text || ''}
+                                  </ReactMarkdown>
+                                </div>
+                              )}
+                              
+                              {msg.isThinking && (
+                                <div className="flex gap-1.5 py-1">
+                                  <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.2 }} className="h-1.5 w-1.5 rounded-full bg-hm-red" />
+                                  <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.2, delay: 0.2 }} className="h-1.5 w-1.5 rounded-full bg-hm-red" />
+                                  <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.2, delay: 0.4 }} className="h-1.5 w-1.5 rounded-full bg-hm-red" />
+                                </div>
+                              )}
+                            </div>
                           )}
                         </div>
                       </motion.div>
