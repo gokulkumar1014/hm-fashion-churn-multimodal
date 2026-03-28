@@ -10,3 +10,6 @@ tzdata
 google-genai
 pydantic
 duckdb
+google-auth
+google-auth-oauthlib
+requests
