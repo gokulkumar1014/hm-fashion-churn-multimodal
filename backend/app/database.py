@@ -179,14 +179,14 @@ class HMLakehouse:
                 b.customer_id,
                 b.age,
                 b.club_member_status,
-                b.last_purchase,
+                s.last_purchase,
                 s.estimated_ltv,
                 s.total_purchases
-                FROM customer_bio b
-                LEFT JOIN customer_stats s ON b.customer_id = s.customer_id
-                WHERE b.customer_id = ?
-                LIMIT 1
-            """,
+            FROM customer_bio b
+            LEFT JOIN customer_stats s ON b.customer_id = s.customer_id
+            WHERE b.customer_id = ?
+            LIMIT 1
+        """,
             [hex_id],
         )
         if not row:
@@ -205,7 +205,7 @@ class HMLakehouse:
                 "customer_id": row["customer_id"],
                 "age": row["age"],
                 "club_member_status": row["club_member_status"],
-                "last_purchase": row["last_purchase"],
+                "last_purchase": row.get("last_purchase"),
                 "estimated_ltv": float(row.get("estimated_ltv") or 0.0),
                 "total_purchases": int(row.get("total_purchases") or 0),
             },
@@ -245,9 +245,10 @@ class HMLakehouse:
         article_vectors = []
         article_ids = [int(row["article_id"]) for row in history_rows]
         for article_id in article_ids:
+            padded_article_id = str(article_id).zfill(10)
             article_rows = self._fetch_remote(
                 "hm_style_encyclopedia",
-                filters={"article_id": article_id},
+                filters={"article_id": padded_article_id},
                 select=["style_embeddings"],
                 limit=1,
             )
@@ -289,9 +290,10 @@ class HMLakehouse:
         if not history:
             return []
         fav_article = int(history[0]["article_id"])
+        fav_article_str = str(fav_article).zfill(10)
         twins = self._fetch_dicts(
-            "SELECT similar_items FROM similarity_index WHERE article_id = ? LIMIT 1",
-            [fav_article],
+            "SELECT similar_items FROM similarity_index WHERE article_id = CAST(? AS VARCHAR) LIMIT 1",
+            [fav_article_str],
         )
         if not twins or "similar_items" not in twins[0]:
             return []
@@ -316,9 +318,10 @@ class HMLakehouse:
         if not padded_articles:
             return []
         last_article = int(padded_articles[0])
+        last_article_str = str(last_article).zfill(10)
         twins = self._fetch_dicts(
-            "SELECT similar_items FROM similarity_index WHERE article_id = ? LIMIT 1",
-            [last_article],
+            "SELECT similar_items FROM similarity_index WHERE article_id = CAST(? AS VARCHAR) LIMIT 1",
+            [last_article_str],
         )
         if not twins or "similar_items" not in twins[0]:
             return []
