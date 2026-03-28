@@ -213,7 +213,7 @@ app.add_middleware(
 async def get_customer(customer_id: str):
     """
     Takes either a standard 64-char Hex ID or the internal Int64 mapped ID.
-    Performs dynamic ONNX sequential inference + Polars Lazy GCS Drift computation.
+    Performs dynamic ONNX sequential inference + Polars Lazy GCS Drift computation natively via FUSE.
     """
     
     # Int64 vs Hex String Router
@@ -237,7 +237,13 @@ async def get_customer(customer_id: str):
 @app.get("/api/v1/random-id", tags=["CRM Engine"], summary="Fast-track a random hex ID")
 async def get_random_id():
     if not DEMO_IDS:
-        raise HTTPException(status_code=503, detail="Random ID catalog is unavailable; please rebuild assets/demo_ids.json.")
+        try:
+            row = lakehouse.duckdb_conn.execute("SELECT hex_id FROM customer_id_bridge LIMIT 1 OFFSET (SELECT CAST(RANDOM() * COUNT(*) AS INT) FROM customer_id_bridge)").fetchone()
+            if row: 
+                return {"random_id": row[0]}
+        except Exception:
+            pass
+        raise HTTPException(status_code=503, detail="Random ID catalog is absolutely unavailable.")
     return {"random_id": random.choice(DEMO_IDS)}
 
 # ==============================================================================
