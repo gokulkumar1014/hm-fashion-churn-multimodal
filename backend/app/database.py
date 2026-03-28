@@ -47,8 +47,9 @@ class HMLakehouse:
                 f"CREATE VIEW IF NOT EXISTS {view_name} AS SELECT * FROM read_parquet('{absolute_path}')"
             )
 
+        # 🚨 PROD LATENCY CURE: Load GCS files completely into RAM ONCE during boot, instead of parsing over HTTP every request!
         self.remote_dfs = {
-            view: pl.scan_parquet(uri) for view, uri in self.REMOTE_VIEWS.items()
+            view: pl.read_parquet(uri).lazy() for view, uri in self.REMOTE_VIEWS.items()
         }
 
         onnx_model_path = assets_dir / "visionary_champion_quantized.onnx"
