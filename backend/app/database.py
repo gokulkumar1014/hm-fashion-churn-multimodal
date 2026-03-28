@@ -47,10 +47,30 @@ class HMLakehouse:
                 f"CREATE VIEW IF NOT EXISTS {view_name} AS SELECT * FROM read_parquet('{absolute_path}')"
             )
 
-        # 🚨 PROD LATENCY CURE: Load GCS files completely into RAM ONCE during boot, instead of parsing over HTTP every request!
-        self.remote_dfs = {
-            view: pl.read_parquet(uri).lazy() for view, uri in self.REMOTE_VIEWS.items()
-        }
+        # 🚨 PROD LATENCY CURE v2: Download natively to disk (/tmp) to prevent RAM blowout, then scan locally.
+        from google.cloud import storage
+        import os
+        try:
+            storage_client = storage.Client()
+            bucket = storage_client.bucket("gokul-hm-vault")
+        except Exception:
+            storage_client = None
+
+        self.remote_dfs = {}
+        for view, uri in self.REMOTE_VIEWS.items():
+            blob_name = uri.split("gokul-hm-vault/")[-1]
+            tmp_path = f"/tmp/{blob_name}"
+            # Only download if it doesn't already exist locally
+            if not os.path.exists(tmp_path) and storage_client:
+                print(f"Downloading {blob_name} natively to ephemeral disk...")
+                blob = bucket.blob(blob_name)
+                blob.download_to_filename(tmp_path)
+            
+            # If download succeeded (or local laptop), scan the local file! If it failed, fallback to network.
+            if os.path.exists(tmp_path):
+                self.remote_dfs[view] = pl.scan_parquet(tmp_path)
+            else:
+                self.remote_dfs[view] = pl.scan_parquet(uri)
 
         onnx_model_path = assets_dir / "visionary_champion_quantized.onnx"
         
