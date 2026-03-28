@@ -51,10 +51,17 @@ class HMLakehouse:
             self.duckdb_conn.execute("INSTALL httpfs;")
             self.duckdb_conn.execute("LOAD httpfs;")
             try:
-                # 🛡️ Maps the container's free Google IAM role into DuckDB's C++ auth stack
-                self.duckdb_conn.execute("CREATE SECRET (TYPE GCS, PROVIDER CREDENTIAL_CHAIN);")
-            except Exception:
-                pass
+                # 🛡️ Map Cloud Run's native IAM OAuth token down to the DuckDB C++ engine 
+                import google.auth
+                import google.auth.transport.requests
+                credentials, _ = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform'])
+                credentials.refresh(google.auth.transport.requests.Request())
+                token = credentials.token
+                
+                self.duckdb_conn.execute(f"CREATE SECRET (TYPE GCS, bearer_token '{token}');")
+                print("✅ [Security] Native DuckDB OAuth2 Authentication successfully passed to GCS")
+            except Exception as inner_e:
+                print(f"DuckDB GCP Auth error (ignoring and trying public fallback): {inner_e}")
         except Exception as e:
             print(f"DuckDB extensions load warning: {e}")
 
