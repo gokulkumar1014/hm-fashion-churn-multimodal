@@ -243,7 +243,7 @@ async def get_chat_response(request: ChatRequest):
     client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
     
     # 1. Ultra-Fast Regex Extraction (Bypasses Gemini 429 Quota Limits)
-    hex_match = re.search(r'\b[a-fA-F0-9]{64}\b', request.message)
+    hex_match = HEX_PATTERN.search(request.message)
     int_match = re.search(r'\b\d{5,15}\b', request.message)
     
     if hex_match:
@@ -252,6 +252,8 @@ async def get_chat_response(request: ChatRequest):
         extracted_id = int_match.group(0)
     else:
         extracted_id = "NONE"
+
+    print(f"DEBUG: Chat ID Extraction -> {extracted_id}")
 
     async def event_generator():
         history_payload = request.history or []
@@ -313,8 +315,10 @@ async def get_chat_response(request: ChatRequest):
                         hex_target = clean_id
 
                     if hex_target:
+                        print(f"DEBUG: Fetching CRM 360 for hex_target -> {hex_target}")
                         crm_data = await asyncio.to_thread(conductor.get_customer_360, hex_target)
                         if "error" not in crm_data:
+                            print(f"DEBUG: CRM Data Found for -> {hex_target}")
                             clean_data = jsonable_encoder(crm_data)
                             yield f"data: {json.dumps({'type': 'data', 'payload': clean_data})}\n\n"
                             await asyncio.sleep(0.05)

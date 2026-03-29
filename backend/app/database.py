@@ -48,8 +48,16 @@ class HMLakehouse:
             "high_risk_percentage": 26.4,
             "ticker_category": "Trousers",
             "market_velocity_pct": "+7%",
-            "market_velocity_data": [{"name": "Trousers", "count": 24050}],
-            "top_persona_data": [{"id": 0, "count": 142090}],
+            "market_velocity_data": [
+                {"name": "The Gen-Z Trendsetter", "count": 24050},
+                {"name": "The Urban Streetwear", "count": 18200},
+                {"name": "The Modern Professional", "count": 15400}
+            ],
+            "top_persona_data": [
+                {"id": 0, "count": 310502},
+                {"id": 6, "count": 242090},
+                {"id": 1, "count": 185200}
+            ],
         }
 
         # 2. PROD LATENCY CURE v5: The Enterprise DuckDB C++ Engine
@@ -246,8 +254,16 @@ class HMLakehouse:
                 "high_risk_percentage": 26.4,
                 "ticker_category": "Trousers",
                 "market_velocity_pct": "+7%",
-                "market_velocity_data": [{"name": "The Gen-Z Trendsetter", "count": 1200}],
-                "top_persona_data": [{"id": 0, "count": 310502}],
+                "market_velocity_data": [
+                    {"name": "The Gen-Z Trendsetter", "count": 310200},
+                    {"name": "The Urban Streetwear", "count": 245100},
+                    {"name": "The Modern Professional", "count": 182400}
+                ],
+                "top_persona_data": [
+                    {"id": 0, "count": 310502},
+                    {"id": 6, "count": 242090},
+                    {"id": 1, "count": 185200}
+                ],
             }
 
     def hex_from_int(self, int_id: int) -> Optional[str]:
