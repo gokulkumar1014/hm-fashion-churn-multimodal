@@ -273,8 +273,8 @@ export default function Playground() {
                             />
                           )}
 
-                          {/* 2. Text Narrative Bubble */}
-                          {(msg.text !== undefined || msg.isThinking) && (
+                          {/* 2. Text Narrative Bubble (Only if NOT already handled by AnalystResponse) */}
+                          {!msg.data && (msg.text !== undefined || msg.isThinking) && (
                             <div className={`px-5 sm:px-6 py-4 font-sans text-sm leading-relaxed rounded-2xl shadow-sm transition-all duration-300 break-words max-w-full ${msg.role === 'user' ? 'bg-gradient-to-br from-hm-black to-slate-900 text-white border border-hm-black shadow-[0_20px_40px_rgba(0,0,0,0.4)]' : 'bg-white/70 backdrop-blur-md border border-gray-100 text-hm-black'}`}>
                               {msg.role === 'user' ? (
                                 <div className="break-all">{msg.text}</div>
@@ -297,8 +297,8 @@ export default function Playground() {
                               {msg.isThinking && (
                                 <div className="flex gap-1.5 py-1">
                                   <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.2 }} className="h-1.5 w-1.5 rounded-full bg-hm-red" />
-                                  <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.2, delay: 0.2 }} className="h-1.5 w-1.5 rounded-full bg-hm-red" />
-                                  <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.2, delay: 0.4 }} className="h-1.5 w-1.5 rounded-full bg-hm-red" />
+                                  <motion.div animate={{ opacity: [0.3, 0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.2, delay: 0.2 }} className="h-1.5 w-1.5 rounded-full bg-hm-red" />
+                                  <motion.div animate={{ opacity: [0.3, 0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.2, delay: 0.4 }} className="h-1.5 w-1.5 rounded-full bg-hm-red" />
                                 </div>
                               )}
                             </div>

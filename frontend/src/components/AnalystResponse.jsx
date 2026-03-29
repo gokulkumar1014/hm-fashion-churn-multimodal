@@ -31,34 +31,36 @@ export default function AnalystResponse({
       variants={container}
       initial="hidden"
       animate="show"
-      className="flex flex-col gap-6 w-full"
+      className="flex flex-col gap-4 w-full"
     >
-      {/* LLM Narrative Bubble */}
-      {narrative && (
-        <motion.div variants={item} className="w-full">
-          <div className="px-6 py-5 font-sans text-sm leading-relaxed bg-white/70 backdrop-blur-md border border-gray-100 shadow-sm text-hm-black rounded-r-2xl rounded-bl-2xl">
-            <ReactMarkdown
-              components={{
-                p: ({node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
-                strong: ({node, ...props}) => <strong className="font-semibold text-hm-black" {...props} />,
-                ul: ({node, ...props}) => <ul className="list-disc pl-5 mb-2" {...props} />,
-                ol: ({node, ...props}) => <ol className="list-decimal pl-5 mb-2" {...props} />,
-                li: ({node, ...props}) => <li className="mb-1" {...props} />
-              }}
-            >
-              {narrative}
-            </ReactMarkdown>
-          </div>
-        </motion.div>
-      )}
-
-      {/* CRM Data Injection (Only appears if data exists) */}
+      {/* 1. CRM Data Injection (Priority #1) */}
       {data && (
         <motion.div variants={item} className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
           <RiskCard assessment={data.risk_assessment} />
           <StrategyCard strategy={data.strategy} />
           <RecentHistoryFeed title="Recent Activity" items={data.recent_activity_feed} />
           <VisualTwinsFeed title="Visual Recommendations" items={data.orchestrated_recommendations} />
+        </motion.div>
+      )}
+
+      {/* 2. LLM Narrative Transition (Priority #2) */}
+      {narrative && (
+        <motion.div variants={item} className="w-full">
+          <div className="px-6 py-5 font-sans text-sm leading-relaxed bg-white border border-gray-100 shadow-sm text-hm-black rounded-2xl">
+            <div className="markdown-content">
+              <ReactMarkdown
+                components={{
+                  p: ({node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
+                  strong: ({node, ...props}) => <strong className="font-semibold text-hm-black" {...props} />,
+                  ul: ({node, ...props}) => <ul className="list-disc pl-5 mb-2" {...props} />,
+                  ol: ({node, ...props}) => <ol className="list-decimal pl-5 mb-2" {...props} />,
+                  li: ({node, ...props}) => <li className="mb-1" {...props} />
+                }}
+              >
+                {narrative}
+              </ReactMarkdown>
+            </div>
+          </div>
         </motion.div>
       )}
     </motion.div>
