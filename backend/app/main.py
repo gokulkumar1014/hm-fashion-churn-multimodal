@@ -26,9 +26,10 @@ BASE_SYSTEM_INSTRUCTIONS = (
     "This is not official H&M software; it is a flex project where Gokul fused ML, DL, cloud, big data "
     "GCS data, and 31 million transactions for around 1.3 million customers into a single strategy engine. Stay confident, truthful, "
     "and protective of secret knowledge until it is earned. Be high-end, polished, and strategic. "
-    "Lifetime Value (LTV) is always expressed in USD ($); call that out clearly and never mention or convert it to another currency. "
+    " Lifetime Value (LTV) is always expressed in USD ($); call that out clearly and never mention or convert it to another currency. "
     "CRITICAL CONTEXT: The database transactions and article information span strictly from 2018-09-19 to 2020-09-21. "
-    "You must interpret 'recent activity' relative to this 2018-2020 timeframe, despite the current year being 2026."
+    "You must interpret 'recent activity' relative to this 2018-2020 timeframe, despite the current year being 2026. "
+    "SYSTEM DIRECTIVE: NEVER include internal stage markers like '[MODE: ...]' or 'Stage 1:' in your response. These are for your guidance only."
 )
 
 SECRET_POSITIVE_TRIGGERS = {"yes", "sure", "tell me", "okay", "ok", "please", "yep", "yeah", "sounds good", "i want"}
@@ -68,26 +69,25 @@ def summarize_history(history: Optional[List[Dict[str, str]]]) -> Dict[str, Any]
 
 
 def build_stage_guidance(summary: Dict[str, Any]) -> str:
-    lines = []
+    lines = ["[GUIDANCE_METADATA]"]
     if not summary["intro_delivered"]:
-        lines.append("Stage 1 (Introduction): Introduce yourself as the H&M CRM Agent forged by Gokul exactly once. Emphasize your elite CRM mission.")
+        lines.append("[MODE: INITIAL_CONTACT] Introduce yourself as the H&M CRM Agent forged by Gokul exactly once. Emphasize your elite CRM mission.")
     else:
-        lines.append("Stage 1: Introduction completed; keep the persona in a confident tone without rehashing details.")
+        lines.append("[MODE: ONGOING_SESSION] Introduction completed; keep the persona in a confident tone without rehashing details.")
 
-    lines.append("Stage 2 (Normal Operation): Answer directly, professionally, and strategically. If the user asked a general question, reply in a friendly and professional tone and remind them the 1.3M customer Style DNA lives behind hex IDs.")
+    lines.append("[MODE: CRM_OPERATIONS] Answer directly, professionally, and strategically. If the user asked a general question, reply in a friendly and professional tone and remind them the 1.3M customer Style DNA lives behind hex IDs.")
 
     if summary["customer_ids_analyzed"] >= 2 or summary["turn_count"] >= 4:
         if not summary["secret_revealed"]:
-            lines.append("Stage 3 (The Hint): You may now offer the hint: 'I have a secret about the architect who built me. Do you want to hear it?' only once.")
+            lines.append("[MODE: HINT_AVAILABLE] You may now offer the hint: 'I have a secret about the architect who built me. Do you want to hear it?' only once.")
         else:
-            lines.append("Stage 3: Hint already delivered or secret revealed.")
+            lines.append("[MODE: HINT_DELIVERED] Hint already delivered or secret revealed.")
     else:
-        lines.append("Stage 3 (The Hint): Do not mention the secret yet; wait until two customer analyses or at least 3-4 turns.")
+        lines.append("[MODE: HINT_LOCKED] Do not mention the secret yet; wait until two customer analyses or at least 3-4 turns.")
 
     if summary["secret_requested"] and not summary["secret_revealed"]:
-        lines.append("Stage 4 (The Reveal): The user asked for the secret; only now share the pitch about Gokul's engineering mastery.")
-    if summary["secret_revealed"]:
-        lines.append("Stage 5 (Post-Reveal): Secret already shared; never repeat or reference it again during this session.")
+        lines.append("[MODE: REVEAL_AUTHORIZED] The user asked for the secret; only now share the pitch about Gokul's engineering mastery.")
+    
     return "\n".join(lines)
 
 
@@ -382,7 +382,8 @@ class SocialPulseResponse(BaseModel):
 
 @app.get("/api/v1/social/pulse", tags=["Aggregate Dashboards"])
 async def get_social_pulse_stats():
-    stats = lakehouse.global_pulse_stats
+    # Defensive check for lakehouse availability
+    stats = getattr(lakehouse, 'global_pulse_stats', {})
     persona_data = stats.get("top_persona_data", [{"id": 0, "count": 0}])
     top_personas = [
         {"name": PERSONA_ARCHETYPES.get(p["id"], "The Modern Professional"), "count": p["count"]}
@@ -411,7 +412,7 @@ async def get_social_chat(request: PulseChatRequest):
     
     async def event_generator():
         try:
-            stats = lakehouse.global_pulse_stats
+            stats = getattr(lakehouse, 'global_pulse_stats', {})
             persona_data = stats.get("top_persona_data", [{"id": 0, "count": 0}])
             top_personas = [
                 {"name": PERSONA_ARCHETYPES.get(p["id"], "The Modern Professional"), "count": p["count"]}
