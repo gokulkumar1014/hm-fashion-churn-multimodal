@@ -45,13 +45,141 @@ Instead of hardcoding "tags" like "Blue Shirt" or "Summer Dress," the model anal
 
 ---
 
+## ☁️ Cloud-Native Data Architecture: From Laptop to Production
+
+### The Problem
+During local development, everything was straightforward—Parquet files were read directly from disk, GCS buckets were accessed through local credentials, and 30+ GB of visual embeddings lived comfortably in memory. **But deploying this to Google Cloud Run changed everything.**
+
+Cloud Run is serverless. Containers have constrained memory (512MB–2GB), limited disk, cold-start penalties, and no persistent filesystem. Naively bundling all assets into the Docker image would:
+- Blow past the **container image size limit**
+- Exhaust **RAM** trying to load massive embedding matrices
+- Cause **cold-start timeouts** as the container tried to hydrate gigabytes of data
+
+### The Solution: Hybrid DuckDB Lakehouse
+
+We re-architected the data layer into a **split-tier system** powered by [DuckDB](https://duckdb.org/)—an in-process analytical SQL engine written in C++. DuckDB acts as a **unified query interface** across both local and remote data, without requiring a database server.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     DuckDB C++ Engine                           │
+│                  (In-Process, Zero-Copy)                        │
+│                                                                 │
+│   ┌──────────────────────┐      ┌────────────────────────────┐  │
+│   │   LOCAL PARQUET       │      │   REMOTE GCS PARQUET        │  │
+│   │   (Docker Image)      │      │   (HTTPFS Extension)        │  │
+│   │                       │      │                              │  │
+│   │  customer_id_bridge   │      │  customer_style_profiles     │  │
+│   │  customer_bio         │      │  behavioral_sequences        │  │
+│   │  customer_stats       │      │  hm_style_encyclopedia       │  │
+│   │  history_narrative    │      │                              │  │
+│   │  article_legend       │      │  30+ GB queried on-demand    │  │
+│   │  similarity_index     │      │  via predicate pushdown      │  │
+│   │  persona_best_sellers │      │                              │  │
+│   └──────────────────────┘      └────────────────────────────┘  │
+│                                                                 │
+│              Unified SQL Interface (Single Connection)          │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Tier 1: Local Assets (Bundled in Docker Image ~250MB)
+
+Small, frequently accessed lookup tables ship inside the Cloud Run container. DuckDB creates **SQL views** that point directly to the Parquet files on disk—no data is loaded into memory until a query hits a specific row group.
+
+| Asset | Size | Purpose |
+|---|---|---|
+| `customer_id_bridge.parquet` | ~50 MB | Hex ↔ Int ID translation layer |
+| `customer_bio.parquet` | ~48 MB | Age, club membership, fashion preferences |
+| `customer_stats.parquet` | ~57 MB | LTV, purchase frequency, date ranges |
+| `history_narrative.parquet` | ~94 MB | Full purchase history with timestamps |
+| `article_legend.parquet` | ~2.3 MB | Product metadata (name, color, type) |
+| `similarity_index.parquet` | ~2.2 MB | Article-to-article visual similarity map |
+| `persona_best_sellers.parquet` | ~1.5 KB | Top-selling articles per style persona |
+| `visionary_champion_quantized.onnx` | ~2.5 MB | Quantized Two-Tower ONNX churn model |
+
+### Tier 2: Remote Assets (GCS, Queried Over Network)
+
+Large ML artifacts (8+ GB) stay in Google Cloud Storage. DuckDB's **HTTPFS extension** reads them natively in C++ using HTTP range requests—only the specific row groups matching our query predicates are downloaded, not the entire file.
+
+| Asset | Location | Purpose |
+|---|---|---|
+| `customer_style_profiles_final.parquet` | `gs://gokul-hm-vault/` | 2048-dim Style DNA vectors + persona cluster |
+| `behavioral_sequences.parquet` | `gs://gokul-hm-vault/` | 27-step LSTM input tensors (26 features each) |
+| `hm_style_encyclopedia.parquet` | `gs://gokul-hm-vault/` | ResNet-50 visual embeddings per article |
+
+### Authentication: Cloud Run → GCS
+
+On Cloud Run, the container's **native IAM service account** provides OAuth2 credentials. These are captured at startup and injected directly into DuckDB's C++ engine as a bearer token secret. A background refresh mechanism re-authenticates every 45 minutes before the token expires.
+
+```python
+credentials, _ = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform'])
+credentials.refresh(google.auth.transport.requests.Request())
+duckdb_conn.execute(f"CREATE OR REPLACE SECRET (TYPE GCS, bearer_token '{credentials.token}');")
+```
+
+### The Query Flow
+
+When a customer hex ID enters the system, data is fetched across both tiers in a single orchestrated pipeline:
+
+```
+User sends 64-char Hex ID
+        │
+        ▼
+  ┌─────────────────────────┐
+  │ LOCAL: customer_id_bridge│ ─── hex_id → int_id translation
+  └───────────┬─────────────┘
+              │ int_id
+     ┌────────┴────────┐
+     ▼                 ▼
+  LOCAL               GCS (Remote)
+  ┌──────────┐        ┌───────────────────────┐
+  │ bio      │        │ style_profiles        │ → Style DNA (2048-dim)
+  │ stats    │        │ behavioral_sequences  │ → LSTM tensor (27×26)
+  │ history  │        │ hm_style_encyclopedia │ → Article embeddings
+  └────┬─────┘        └───────────┬───────────┘
+       │                          │
+       └────────┬─────────────────┘
+                ▼
+       ┌─────────────────┐
+       │  ONNX Inference  │ ── behavioral_tensor + vision_tensor
+       │  (CPU, In-Proc)  │ ── → sigmoid → churn_probability %
+       └────────┬─────────┘
+                ▼
+       ┌─────────────────┐
+       │ Strategy Engine  │ ── LTV tier + churn risk + drift score
+       │                  │ ── → strategy + voucher + recommendations
+       └────────┬─────────┘
+                ▼
+         CRM 360° JSON Response
+```
+
+> **Why this matters**: This architecture allows a serverless container with 1GB RAM to serve real-time ML inference across 1.3M customers and 30+ GB of visual data—something that would traditionally require dedicated GPU instances or heavyweight data warehouses.
+
+---
+
 ## 📂 Repository Structure
 
 ```text
-├── backend/          # FastAPI Python Server (Gemini inference, stateless API endpoints)
-├── frontend/         # React + Vite SaaS Dashboard (Tailwind CSS, Framer Motion)
-├── notebooks/        # Jupyter Notebooks (EDA, DL Modeling, MLflow logs)
-└── README.md         # You are here
+├── backend/
+│   ├── app/
+│   │   ├── main.py               # FastAPI endpoints, Gemini agentic chat, SSE streaming
+│   │   ├── database.py           # DuckDB Hybrid Lakehouse (local + GCS), ONNX loader
+│   │   └── services.py           # Strategy Engine (churn → LTV → voucher logic)
+│   ├── assets/                   # Local Parquet data files + ONNX model
+│   ├── tests/                    # Backend test suite
+│   ├── Dockerfile                # Cloud Run container definition
+│   └── requirements.txt
+├── frontend/
+│   ├── src/
+│   │   ├── components/           # Hero landing, AnalystResponse cards
+│   │   ├── pages/                # Playground (CRM Engine), SocialPulse, Blueprint
+│   │   └── hooks/                # useChat (SSE stream consumer)
+│   ├── vercel.json               # Vercel deployment config
+│   └── package.json
+├── notebooks/
+│   ├── H&M_Phase1_Behavioral.ipynb   # EDA, sequence building, behavioral churn model
+│   └── HM_Churn_Phase2_Vision.ipynb  # Visual embeddings, Two-Tower fusion, ONNX export
+├── docker-compose.yml
+└── README.md
 ```
 
 ---
@@ -84,3 +212,5 @@ npm run dev
 ```
 
 Visit `http://localhost:5173` to interact with the CRM Tactical Diagnostic Dashboard.
+
+> **Note**: Local development reads parquet files directly from `backend/assets/` and accesses GCS using local `gcloud` credentials. The DuckDB hybrid architecture described above is what enables the same codebase to run identically on Cloud Run without modification.
