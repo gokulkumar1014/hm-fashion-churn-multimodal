@@ -295,10 +295,19 @@ export default function Playground() {
                               )}
                               
                               {msg.isThinking && (
-                                <div className="flex gap-1.5 py-1">
-                                  <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.2 }} className="h-1.5 w-1.5 rounded-full bg-hm-red" />
-                                  <motion.div animate={{ opacity: [0.3, 0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.2, delay: 0.2 }} className="h-1.5 w-1.5 rounded-full bg-hm-red" />
-                                  <motion.div animate={{ opacity: [0.3, 0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.2, delay: 0.4 }} className="h-1.5 w-1.5 rounded-full bg-hm-red" />
+                                <div className="flex flex-col gap-3 py-1">
+                                  <div className="flex items-center gap-2 text-[10px] font-mono tracking-widest text-hm-red/80 uppercase">
+                                    <span className="relative flex h-1.5 w-1.5">
+                                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-hm-red opacity-75"></span>
+                                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-hm-red"></span>
+                                    </span>
+                                    <span>{msg.thinkingStatus || 'Initializing Analysis...'}</span>
+                                  </div>
+                                  <div className="flex gap-1.5">
+                                    <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.2 }} className="h-1 w-1 rounded-full bg-hm-red/40" />
+                                    <motion.div animate={{ opacity: [0.3, 0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.2, delay: 0.2 }} className="h-1 w-1 rounded-full bg-hm-red/40" />
+                                    <motion.div animate={{ opacity: [0.3, 0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.2, delay: 0.4 }} className="h-1 w-1 rounded-full bg-hm-red/40" />
+                                  </div>
                                 </div>
                               )}
                             </div>

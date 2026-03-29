@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export function useChat() {
   const STORAGE_KEY = 'hm-playground-chat';
@@ -28,6 +28,16 @@ export function useChat() {
 
   const [messages, setMessages] = useState(loadMessages);
   const [isLoading, setIsLoading] = useState(false);
+  const loadingIntervalRef = useRef(null);
+
+  const TACTICAL_STATUSES = [
+    "Scanning 1.3M Style DNA Profiles...",
+    "Aggregating 31 Million Transaction Records...",
+    "Calibrating Multimodal Visual Embeddings...",
+    "Synthesizing Gemini Strategic Narrative...",
+    "Computing Persona Probability Vector...",
+    "Finalizing Strategic Interventions..."
+  ];
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -47,6 +57,19 @@ export function useChat() {
     
     setMessages(updatedMessages);
     setIsLoading(true);
+
+    // Dynamic Thinking Status Cycle
+    let statusIndex = 0;
+    const cycleStatus = () => {
+      setMessages(prev => prev.map(msg => msg.id === narrativeId ? {
+        ...msg,
+        thinkingStatus: TACTICAL_STATUSES[statusIndex % TACTICAL_STATUSES.length]
+      } : msg));
+      statusIndex++;
+    };
+
+    cycleStatus(); // Initial call
+    loadingIntervalRef.current = setInterval(cycleStatus, 3500);
 
     // Omit thinking from history sent to LLM
     const historySnapshot = updatedMessages
@@ -130,6 +153,10 @@ export function useChat() {
       } : msg));
     } finally {
       setIsLoading(false);
+      if (loadingIntervalRef.current) {
+        clearInterval(loadingIntervalRef.current);
+        loadingIntervalRef.current = null;
+      }
     }
   };
 
