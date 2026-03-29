@@ -125,8 +125,7 @@ export default function Playground() {
       const retrieved_id = data.hex_id || data.random_id; 
       
       if (retrieved_id) {
-        setInput(retrieved_id);
-        // We don't clear the input immediately, let sendMessage handle the flow
+        setInput('');
         await sendMessage(retrieved_id);
       }
     } catch (error) {

@@ -218,7 +218,11 @@ async def get_customer(customer_id: str):
         hex_target = customer_id
         
     # Execute Strategy Engine in ThreadPool due to extreme CPU compute bound nature
-    result = await asyncio.to_thread(conductor.get_customer_360, hex_target)
+    try:
+        result = await asyncio.to_thread(conductor.get_customer_360, hex_target)
+    except Exception as e:
+        print(f"❌ [CRM 360] Unhandled exception for {customer_id}: {e}\n{traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"CRM 360 pipeline failure: {str(e)}")
     
     if "error" in result:
         raise HTTPException(status_code=404, detail=result["error"])

@@ -50,7 +50,7 @@ Instead of hardcoding "tags" like "Blue Shirt" or "Summer Dress," the model anal
 ### The Problem
 During local development, everything was straightforward—Parquet files were read directly from disk, GCS buckets were accessed through local credentials, and 30+ GB of visual embeddings lived comfortably in memory. **But deploying this to Google Cloud Run changed everything.**
 
-Cloud Run is serverless. Containers have constrained memory (512MB–2GB), limited disk, cold-start penalties, and no persistent filesystem. Naively bundling all assets into the Docker image would:
+Cloud Run is serverless. Containers have constrained memory, limited disk, cold-start penalties, and no persistent filesystem. Naively bundling all assets into the Docker image would:
 - Blow past the **container image size limit**
 - Exhaust **RAM** trying to load massive embedding matrices
 - Cause **cold-start timeouts** as the container tried to hydrate gigabytes of data

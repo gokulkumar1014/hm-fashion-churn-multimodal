@@ -76,9 +76,14 @@ class HMLakehouse:
                 import google.auth.transport.requests
                 credentials, _ = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform'])
                 credentials.refresh(google.auth.transport.requests.Request())
+                token = credentials.token
+                # Inject the bearer token SECRET directly into DuckDB's C++ engine on startup.
+                # Previously, this was deferred to _ensure_token_valid(), which skipped execution
+                # because _last_token_refresh was set to time.time() right before the call,
+                # causing the 45-minute timer check to evaluate False immediately.
+                self.duckdb_conn.execute(f"CREATE OR REPLACE SECRET (TYPE GCS, bearer_token '{token}');")
                 self._last_token_refresh = time.time()
-                self._ensure_token_valid()
-                print("✅ [Security] Native DuckDB OAuth2 Authentication successfully passed to GCS")
+                print("✅ [Security] GCS Bearer Token injected into DuckDB C++ Engine")
             except Exception as inner_e:
                 print(f"DuckDB GCP Auth error (ignoring and trying public fallback): {inner_e}")
                 self._last_token_refresh = 0
