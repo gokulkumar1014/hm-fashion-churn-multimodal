@@ -230,7 +230,7 @@ The backend is deployed as a containerized FastAPI service on **Google Cloud Run
 | Memory | **8 GiB** | DuckDB in-process engine + ONNX inference + large Parquet scans |
 | CPU | **2 vCPUs** | Parallel DuckDB query execution and ONNX tensor operations |
 | Timeout | **300s** | GCS remote Parquet queries on cold-start can take 10-30s |
-| Concurrency | **4** | Limits parallel requests per instance to prevent memory pressure |
+| Concurrency | **1** | DuckDB's single-connection architecture serializes queries; 1 request per instance ensures zero-blocking |
 | Max Instances | **10** | Cost ceiling while supporting burst traffic |
 | Auth | **Unauthenticated** | Public API (CORS-restricted to Vercel frontend) |
 
@@ -248,7 +248,7 @@ gcloud run deploy hm-engine \
   --memory 8Gi \
   --cpu 2 \
   --timeout 300 \
-  --concurrency 4 \
+  --concurrency 1 \
   --max-instances 10 \
   --set-env-vars=GEMINI_API_KEY="your_key",FRONTEND_URL="https://gokul-hm-intelligence.vercel.app"
 

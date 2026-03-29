@@ -490,4 +490,8 @@ async def get_product_image(article_id: str):
     if not image_bytes:
         raise HTTPException(status_code=404, detail=f"Image {blob_path} not found in GCS.")
         
-    return StreamingResponse(io.BytesIO(image_bytes), media_type="image/jpeg")
+    return StreamingResponse(
+        io.BytesIO(image_bytes), 
+        media_type="image/jpeg",
+        headers={"Cache-Control": "public, max-age=86400, immutable"}
+    )
