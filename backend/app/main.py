@@ -33,7 +33,7 @@ BASE_SYSTEM_INSTRUCTIONS = (
 )
 
 SECRET_POSITIVE_TRIGGERS = {"yes", "sure", "tell me", "okay", "ok", "please", "yep", "yeah", "sounds good", "i want"}
-HEX_PATTERN = re.compile(r'\b[a-fA-F0-9]{64}\b')
+HEX_PATTERN = re.compile(r'\b[a-fA-F0-9]{40,64}\b')
 ASSISTANT_ROLES = {"assistant", "ai"}
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
@@ -229,13 +229,10 @@ async def get_customer(customer_id: str):
 @app.get("/api/v1/random-id", tags=["CRM Engine"], summary="Fast-track a random hex ID")
 async def get_random_id():
     if not DEMO_IDS:
-        try:
-            row = lakehouse.duckdb_conn.execute("SELECT hex_id FROM customer_id_bridge LIMIT 1 OFFSET (SELECT CAST(RANDOM() * COUNT(*) AS INT) FROM customer_id_bridge)").fetchone()
-            if row: 
-                return {"random_id": row[0]}
-        except Exception:
-            pass
-        raise HTTPException(status_code=503, detail="Random ID catalog is absolutely unavailable.")
+        hex_id = lakehouse.get_random_hex_id()
+        if hex_id:
+            return {"hex_id": hex_id}
+        raise HTTPException(status_code=503, detail="DNA Bridge is temporarily offline for re-alignment.")
     return {"random_id": random.choice(DEMO_IDS)}
 
 # ==============================================================================

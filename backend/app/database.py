@@ -258,11 +258,40 @@ class HMLakehouse:
         return row["hex_id"] if row else None
 
     def int_from_hex(self, hex_id: str) -> Optional[int]:
+        # 🧪 ROBUST WELD: Try exact match, then try truncated match 
+        # (Handling the 40 vs 64 char inconsistency acrossparquet files)
+        if not hex_id: return None
+        id_clean = hex_id.strip().lower()
+        
+        # Strategy A: Try Exact Match
         row = self._fetch_one(
-            "SELECT int_id FROM customer_id_bridge WHERE hex_id = ? LIMIT 1",
-            [hex_id],
+            "SELECT int_id FROM customer_id_bridge WHERE lower(hex_id) = ? LIMIT 1",
+            [id_clean],
         )
-        return int(row["int_id"]) if row else None
+        if row: return int(row["int_id"])
+        
+        # Strategy B: Try Truncated Prefix (Handling 40-char internal bridge)
+        if len(id_clean) > 40:
+            truncated = id_clean[:40]
+            row = self._fetch_one(
+                "SELECT int_id FROM customer_id_bridge WHERE lower(hex_id) = ? LIMIT 1",
+                [truncated],
+            )
+            if row: return int(row["int_id"])
+            
+        return None
+
+    def get_random_hex_id(self) -> Optional[str]:
+        """Ultra-robust random ID recovery for the DNA Bridge."""
+        try:
+            # Random Offset based on total count
+            row = self._fetch_one(
+                "SELECT hex_id FROM customer_id_bridge LIMIT 1 OFFSET (SELECT CAST(RANDOM() * COUNT(*) AS INT) FROM customer_id_bridge)"
+            )
+            return row["hex_id"] if row else None
+        except Exception as e:
+            print(f"Random ID selection failed: {e}")
+            return None
 
     @lru_cache(maxsize=1000)
     def get_customer_context(self, int_id: int) -> dict:
@@ -270,6 +299,7 @@ class HMLakehouse:
         if not hex_id:
             return {"error": f"Customer int_id {int_id} not found in bridge."}
 
+        # 🔐 Search Bio/Stats (64-char) using the Prefix (40-char)
         row = self._fetch_one(
             """
             SELECT
@@ -281,13 +311,13 @@ class HMLakehouse:
                 s.total_purchases
             FROM customer_bio b
             LEFT JOIN customer_stats s ON b.customer_id = s.customer_id
-            WHERE b.customer_id = ?
+            WHERE b.customer_id LIKE ?
             LIMIT 1
         """,
-            [hex_id],
+            [f"{hex_id}%"],
         )
         if not row:
-            return {"error": f"Customer ID {hex_id} not found locally."}
+            return {"error": f"Customer ID {hex_id} match not found at bio/stats data layer."}
 
         dna_row = self._fetch_remote(
             "style_profiles",
@@ -330,14 +360,14 @@ class HMLakehouse:
             """
                 SELECT article_id
                 FROM history_narrative
-                WHERE customer_id = ?
+                WHERE customer_id LIKE ?
                 ORDER BY t_dat DESC
                 LIMIT 3
             """,
-            [hex_id],
+            [f"{hex_id}%"],
         )
         if not history_rows:
-            return {"error": f"Customer ID {hex_id} has no purchase history to measure drift."}
+            return {"error": f"Customer ID {hex_id} has no purchase historical narrative to measure drift."}
 
         article_vectors = []
         article_ids = [int(row["article_id"]) for row in history_rows]
@@ -381,8 +411,8 @@ class HMLakehouse:
 
     def _get_historical_twins(self, hex_id: str) -> list:
         history = self._fetch_dicts(
-            "SELECT article_id FROM history_narrative WHERE customer_id = ? LIMIT 1",
-            [hex_id],
+            "SELECT article_id FROM history_narrative WHERE customer_id LIKE ? LIMIT 1",
+            [f"{hex_id}%"],
         )
         if not history:
             return []
