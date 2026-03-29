@@ -38,6 +38,7 @@ export function useChat() {
     "Computing Persona Probability Vector...",
     "Finalizing Strategic Interventions..."
   ];
+  
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -47,29 +48,40 @@ export function useChat() {
   const sendMessage = async (input) => {
     if (!input.trim()) return;
 
-    // 1. Render User Message immediately
+    // 1. Detect if this is an ID-based query
+    const isIdQuery = /\b[a-fA-F0-9]{40,64}\b/.test(input) || /\b\d{5,15}\b/.test(input);
+
+    // 2. Render User Message immediately
     const userMsg = { id: Date.now(), role: 'user', text: input, type: 'text' };
     const narrativeId = Date.now() + 1;
     
-    // 2. Render initial thinking message using the actual narrativeId
-    const thinkingMsg = { id: narrativeId, role: 'ai', text: '', type: 'text', isThinking: true };
+    // 3. Render initial thinking message
+    //    ID queries get tactical status text; general queries get dots only (null status)
+    const thinkingMsg = { 
+      id: narrativeId, 
+      role: 'ai', 
+      text: '', 
+      type: 'text', 
+      isThinking: true,
+      thinkingStatus: isIdQuery ? TACTICAL_STATUSES[0] : null
+    };
     const updatedMessages = [...messages, userMsg, thinkingMsg];
     
     setMessages(updatedMessages);
     setIsLoading(true);
 
-    // Dynamic Thinking Status Cycle
-    let statusIndex = 0;
-    const cycleStatus = () => {
-      setMessages(prev => prev.map(msg => msg.id === narrativeId ? {
-        ...msg,
-        thinkingStatus: TACTICAL_STATUSES[statusIndex % TACTICAL_STATUSES.length]
-      } : msg));
-      statusIndex++;
-    };
-
-    cycleStatus(); // Initial call
-    loadingIntervalRef.current = setInterval(cycleStatus, 3500);
+    // Dynamic Thinking Status Cycle — only for ID-based queries
+    if (isIdQuery) {
+      let statusIndex = 1;
+      const cycleStatus = () => {
+        setMessages(prev => prev.map(msg => msg.id === narrativeId ? {
+          ...msg,
+          thinkingStatus: TACTICAL_STATUSES[statusIndex % TACTICAL_STATUSES.length]
+        } : msg));
+        statusIndex++;
+      };
+      loadingIntervalRef.current = setInterval(cycleStatus, 3000);
+    }
 
     // Omit thinking from history sent to LLM
     const historySnapshot = updatedMessages

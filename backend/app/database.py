@@ -1,4 +1,7 @@
 import time
+import os
+import json
+import threading
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -34,6 +37,7 @@ class HMLakehouse:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(HMLakehouse, cls).__new__(cls)
+            cls._instance.lock = threading.Lock()
             cls._instance._initialize()
         return cls._instance
 
@@ -106,11 +110,14 @@ class HMLakehouse:
         except Exception as e:
             print(f"ONNX Load Warning: {e}")
 
-        # 5. Hydrate Global Pulse from Real Data
+        # 5. Hydrate Global Pulse and View Integrity Check
         try:
-            self.global_pulse_stats = self._compute_global_pulse()
-        except:
-            pass # Keep defaults from step 1
+            # View Integrity Verification
+            bridge_count = self.duckdb_conn.execute("SELECT COUNT(*) FROM customer_id_bridge").fetchone()[0]
+            print(f"📦 [Inventory] DNA Bridge initialized with {bridge_count:,} identity mappings.")
+            self._compute_global_pulse()
+        except Exception as e:
+            print(f"❌ [Inventory] Dynamic Hydration FAILED (using fallbacks): {e}")
             
         print("✅ Core Lakehouse, ONNX, and DuckDB Engines Booted")
 
@@ -121,19 +128,24 @@ class HMLakehouse:
         """
         # If never refreshed or > 45 minutes old
         if not hasattr(self, '_last_token_refresh') or (time.time() - self._last_token_refresh > 2700):
-            try:
-                import google.auth
-                import google.auth.transport.requests
-                credentials, _ = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform'])
-                credentials.refresh(google.auth.transport.requests.Request())
-                token = credentials.token
-                
-                # Replace the existing secret with the fresh one
-                self.duckdb_conn.execute(f"CREATE OR REPLACE SECRET (TYPE GCS, bearer_token '{token}');")
-                self._last_token_refresh = time.time()
-                print(f"🔄 [Security] GCS OAuth Token refreshed for industrial-scale continuity (at {time.ctime()})")
-            except Exception as e:
-                print(f"Failed to refresh GCS token: {e}")
+            with self.lock:
+                # Double-check inside lock for performance
+                if hasattr(self, '_last_token_refresh') and (time.time() - self._last_token_refresh <= 2700):
+                    return
+                    
+                try:
+                    import google.auth
+                    import google.auth.transport.requests
+                    credentials, _ = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform'])
+                    credentials.refresh(google.auth.transport.requests.Request())
+                    token = credentials.token
+                    
+                    # Replace the existing secret with the fresh one
+                    self.duckdb_conn.execute(f"CREATE OR REPLACE SECRET (TYPE GCS, bearer_token '{token}');")
+                    self._last_token_refresh = time.time()
+                    print(f"🔄 [Security] GCS OAuth Token refreshed (at {time.ctime()})")
+                except Exception as e:
+                    print(f"Failed to refresh GCS token: {e}")
 
     def _fetch_dicts(
         self,
@@ -274,27 +286,41 @@ class HMLakehouse:
         return row["hex_id"] if row else None
 
     def int_from_hex(self, hex_id: str) -> Optional[int]:
-        # 🧪 ROBUST WELD: Try exact match, then try truncated match 
-        # (Handling the 40 vs 64 char inconsistency acrossparquet files)
         if not hex_id: return None
         id_clean = hex_id.strip().lower()
+        
+        # Micro-Health Check: Ensure the bridge is actually mounted
+        try:
+            row_check = self.duckdb_conn.execute("SELECT 1 FROM customer_id_bridge LIMIT 1").fetchone()
+        except:
+            print("⚠️ [Bridge] View lost. Re-mounting DNA Bridge views...")
+            with self.lock:
+                self._initialize()
+
+        print(f"🔍 [Lookup] Searching for identity: {id_clean} (Len: {len(id_clean)})")
         
         # Strategy A: Try Exact Match
         row = self._fetch_one(
             "SELECT int_id FROM customer_id_bridge WHERE lower(hex_id) = ? LIMIT 1",
             [id_clean],
         )
-        if row: return int(row["int_id"])
+        if row: 
+            print(f"✅ [Lookup] Exact match found: {row['int_id']}")
+            return int(row["int_id"])
         
         # Strategy B: Try Truncated Prefix (Handling 40-char internal bridge)
         if len(id_clean) > 40:
             truncated = id_clean[:40]
+            print(f"🔍 [Lookup] Exact match failed. Trying truncated prefix: {truncated}")
             row = self._fetch_one(
                 "SELECT int_id FROM customer_id_bridge WHERE lower(hex_id) = ? LIMIT 1",
                 [truncated],
             )
-            if row: return int(row["int_id"])
+            if row: 
+                print(f"✅ [Lookup] Prefix match found: {row['int_id']}")
+                return int(row["int_id"])
             
+        print(f"❌ [Lookup] No identity match found for: {id_clean}")
         return None
 
     def get_random_hex_id(self) -> Optional[str]:
