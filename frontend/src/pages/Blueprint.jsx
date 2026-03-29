@@ -406,7 +406,7 @@ export default function Blueprint() {
 
                 <div className="flex flex-col gap-3 text-sm text-slate-600 pt-4 border-t border-amber-100/70">
                   <span>
-                    For detailed logs and model registry: <a className="text-blue-600 underline font-semibold" href="https://dagshub.com/gokulkumar1014/hm-fashion-churn-multimodal/experiments" target="_blank" rel="noreferrer">MLflow</a>
+                    For detailed logs and model registry: <a className="text-blue-600 underline font-semibold" href="https://dagshub.com/gokulkumar1014/hm-fashion-churn-multimodal.mlflow/#/experiments/0/runs?searchFilter=&orderByKey=attributes.start_time&orderByAsc=false&startTime=ALL&lifecycleFilter=Active&modelVersionFilter=All+Runs&datasetsFilter=W10%3D&compareRunsMode=CHART" target="_blank" rel="noreferrer">MLflow</a>
                   </span>
                   <span>
                     For the complete architectural codebase and implementation: <a className="text-blue-600 underline font-semibold" href="https://github.com/gokulkumar1014/hm-fashion-churn-multimodal" target="_blank" rel="noreferrer">GitHub</a>
