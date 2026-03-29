@@ -65,16 +65,16 @@ We re-architected the data layer into a **split-tier system** powered by [DuckDB
 │                  (In-Process, Zero-Copy)                        │
 │                                                                 │
 │   ┌──────────────────────┐      ┌────────────────────────────┐  │
-│   │   LOCAL PARQUET       │      │   REMOTE GCS PARQUET        │  │
-│   │   (Docker Image)      │      │   (HTTPFS Extension)        │  │
-│   │                       │      │                              │  │
-│   │  customer_id_bridge   │      │  customer_style_profiles     │  │
-│   │  customer_bio         │      │  behavioral_sequences        │  │
-│   │  customer_stats       │      │  hm_style_encyclopedia       │  │
-│   │  history_narrative    │      │                              │  │
-│   │  article_legend       │      │  30+ GB queried on-demand    │  │
-│   │  similarity_index     │      │  via predicate pushdown      │  │
-│   │  persona_best_sellers │      │                              │  │
+│   │   LOCAL PARQUET      │      │   REMOTE GCS PARQUET       │  │
+│   │   (Docker Image)     │      │   (HTTPFS Extension)       │  │
+│   │                      │      │                            │  │
+│   │  customer_id_bridge  │      │  customer_style_profiles   │  │
+│   │  customer_bio        │      │  behavioral_sequences      │  │
+│   │  customer_stats      │      │  hm_style_encyclopedia     │  │
+│   │  history_narrative   │      │                            │  │
+│   │  article_legend      │      │  30+ GB queried on-demand  │  │
+│   │  similarity_index    │      │  via predicate pushdown    │  │
+│   │  persona_best_sellers│      │                            │  │
 │   └──────────────────────┘      └────────────────────────────┘  │
 │                                                                 │
 │              Unified SQL Interface (Single Connection)          │
@@ -125,7 +125,7 @@ User sends 64-char Hex ID
         │
         ▼
   ┌─────────────────────────┐
-  │ LOCAL: customer_id_bridge│ ─── hex_id → int_id translation
+  │ LOCAL:customer_id_bridge│ ─── hex_id → int_id translation
   └───────────┬─────────────┘
               │ int_id
      ┌────────┴────────┐
@@ -140,14 +140,14 @@ User sends 64-char Hex ID
        └────────┬─────────────────┘
                 ▼
        ┌─────────────────┐
-       │  ONNX Inference  │ ── behavioral_tensor + vision_tensor
-       │  (CPU, In-Proc)  │ ── → sigmoid → churn_probability %
-       └────────┬─────────┘
+       │  ONNX Inference │ ── behavioral_tensor + vision_tensor
+       │  (CPU, In-Proc) │ ── → sigmoid → churn_probability %
+       └────────┬────────┘
                 ▼
        ┌─────────────────┐
-       │ Strategy Engine  │ ── LTV tier + churn risk + drift score
-       │                  │ ── → strategy + voucher + recommendations
-       └────────┬─────────┘
+       │ Strategy Engine │ ── LTV tier + churn risk + drift score
+       │                 │ ── → strategy + voucher + recommendations
+       └────────┬────────┘
                 ▼
          CRM 360° JSON Response
 ```
@@ -214,3 +214,61 @@ npm run dev
 Visit `http://localhost:5173` to interact with the CRM Tactical Diagnostic Dashboard.
 
 > **Note**: Local development reads parquet files directly from `backend/assets/` and accesses GCS using local `gcloud` credentials. The DuckDB hybrid architecture described above is what enables the same codebase to run identically on Cloud Run without modification.
+
+---
+
+## 🌐 Production Deployment
+
+### Backend: Google Cloud Run
+
+The backend is deployed as a containerized FastAPI service on **Google Cloud Run** (`us-central1`). The Docker image is built via Cloud Build and pushed to Artifact Registry.
+
+**Cloud Run Configuration:**
+
+| Setting | Value | Rationale |
+|---|---|---|
+| Memory | **8 GiB** | DuckDB in-process engine + ONNX inference + large Parquet scans |
+| CPU | **2 vCPUs** | Parallel DuckDB query execution and ONNX tensor operations |
+| Timeout | **300s** | GCS remote Parquet queries on cold-start can take 10-30s |
+| Concurrency | **4** | Limits parallel requests per instance to prevent memory pressure |
+| Max Instances | **10** | Cost ceiling while supporting burst traffic |
+| Auth | **Unauthenticated** | Public API (CORS-restricted to Vercel frontend) |
+
+**Build & Deploy Commands (Cloud Shell):**
+
+```bash
+# 1. Build the Docker image via Cloud Build and push to Artifact Registry
+gcloud builds submit --tag us-central1-docker.pkg.dev/retention-sync/cloud-run-source-deploy/hm-engine:latest
+
+# 2. Deploy to Cloud Run (first-time with full config)
+gcloud run deploy hm-engine \
+  --image us-central1-docker.pkg.dev/retention-sync/cloud-run-source-deploy/hm-engine:latest \
+  --region us-central1 \
+  --allow-unauthenticated \
+  --memory 8Gi \
+  --cpu 2 \
+  --timeout 300 \
+  --concurrency 4 \
+  --max-instances 10 \
+  --set-env-vars=GEMINI_API_KEY="your_key",FRONTEND_URL="https://gokul-hm-intelligence.vercel.app"
+
+# Subsequent deployments (config is retained from previous revision)
+gcloud run deploy hm-engine \
+  --image us-central1-docker.pkg.dev/retention-sync/cloud-run-source-deploy/hm-engine:latest \
+  --region us-central1 \
+  --set-env-vars=GEMINI_API_KEY="your_key",FRONTEND_URL="https://gokul-hm-intelligence.vercel.app"
+```
+
+> Cloud Run retains memory, CPU, timeout, and concurrency settings across revisions. Only the image and env vars need to be specified on subsequent deploys.
+
+### Frontend: Vercel
+
+The React + Vite frontend is deployed on **Vercel** with automatic GitHub-triggered deployments.
+
+**Environment Variable (Vercel Dashboard):**
+
+| Variable | Value |
+|---|---|
+| `VITE_API_URL` | `https://hm-engine-XXXXXXXXXX.us-central1.run.app` |
+
+This connects the frontend to the Cloud Run backend. The value is the service URL provided after `gcloud run deploy`.
