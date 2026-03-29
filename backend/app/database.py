@@ -1,3 +1,4 @@
+import time
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -56,14 +57,35 @@ class HMLakehouse:
                 import google.auth.transport.requests
                 credentials, _ = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform'])
                 credentials.refresh(google.auth.transport.requests.Request())
-                token = credentials.token
-                
-                self.duckdb_conn.execute(f"CREATE SECRET (TYPE GCS, bearer_token '{token}');")
+                self._last_token_refresh = time.time()
+                self._ensure_token_valid()
                 print("✅ [Security] Native DuckDB OAuth2 Authentication successfully passed to GCS")
             except Exception as inner_e:
                 print(f"DuckDB GCP Auth error (ignoring and trying public fallback): {inner_e}")
+                self._last_token_refresh = 0
         except Exception as e:
             print(f"DuckDB extensions load warning: {e}")
+
+    def _ensure_token_valid(self):
+        """
+        Cloud Run OAuth tokens expire in 60 minutes. This method checks 
+        if 45 minutes have passed and refreshes the DuckDB secret if so.
+        """
+        # If never refreshed or > 45 minutes old
+        if not hasattr(self, '_last_token_refresh') or (time.time() - self._last_token_refresh > 2700):
+            try:
+                import google.auth
+                import google.auth.transport.requests
+                credentials, _ = google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform'])
+                credentials.refresh(google.auth.transport.requests.Request())
+                token = credentials.token
+                
+                # Replace the existing secret with the fresh one
+                self.duckdb_conn.execute(f"CREATE OR REPLACE SECRET (TYPE GCS, bearer_token '{token}');")
+                self._last_token_refresh = time.time()
+                print(f"🔄 [Security] GCS OAuth Token refreshed for industrial-scale continuity (at {time.ctime()})")
+            except Exception as e:
+                print(f"Failed to refresh GCS token: {e}")
 
         for view_name, filename in self.LOCAL_VIEWS.items():
             absolute_path = str((assets_dir / filename).resolve()).replace("\\", "/")
@@ -119,6 +141,7 @@ class HMLakehouse:
         descending: bool = True,
         limit: Optional[int] = None,
     ) -> List[Dict[str, Any]]:
+        self._ensure_token_valid()
         uri = self.REMOTE_VIEWS.get(table)
         if not uri: return []
         
@@ -155,6 +178,7 @@ class HMLakehouse:
         remote datasets. This drives the 'Executive View' dashboard.
         """
         try:
+            self._ensure_token_valid()
             # 1. Market Velocity (Top 3 trending categories based on recent volume)
             # We join the local transaction log with the article legend metadata.
             velocity_sql = """
